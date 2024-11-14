@@ -1,0 +1,48 @@
+@startuml
+'https://plantuml.com/class-diagram
+package src {
+
+interface BipartiteGraphInterface {
+    Collection<Vertex> getVertices()
+    int getNumberOfEdges()
+    int getNumberOfVertices()
+    boolean areNeighbors(Vertex u, Vertex v)
+    int getDegree(Vertex u)
+    Collection<Vertex> getNeighborsOf(Vertex u)
+    Map.Entry<Integer,List<Vertex>> runMetaheuristicTest(int maxIterations)
+    Map.Entry<Integer,List<Vertex>> runFirstHeuristic()
+    Map.Entry<Integer,List<Vertex>> runSecondHeuristic()
+}
+
+class BipartiteGraph {
+}
+
+class Vertex
+
+BipartiteGraphInterface --> BipartiteGraph
+
+}
+@enduml
+
+abstract class AbstractList
+abstract AbstractCollection
+interface List
+interface Collection
+
+List <|-- AbstractList
+Collection <|-- AbstractCollection
+
+Collection <|- List
+AbstractCollection <|- AbstractList
+AbstractList <|-- ArrayList
+
+class ArrayList {
+Object[] elementData
+size()
+}
+
+enum TimeUnit {
+DAYS
+HOURS
+MINUTES
+}
