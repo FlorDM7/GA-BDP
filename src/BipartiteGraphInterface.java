@@ -4,13 +4,13 @@ import java.util.Map;
 
 
 public interface BipartiteGraphInterface<Vertex> {
+
     /**
      *  Returns a collection of objects representing the vertices of the graph.
      */
     Collection<Vertex> getVertices();
 
     /**
-     *
      *  Returns the number of edges present in the graph.
      */
     int getNumberOfEdges();
