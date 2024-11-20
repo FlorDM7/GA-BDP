@@ -1,7 +1,8 @@
 import be.kuleuven.cs.som.annotate.Basic;
+import java.util.ArrayList;
 
 /**
- * This class represents a vertex within a graph.
+ * This class represents a vertex within a bipartite graph.
  * @author Flor De Meulemeester
  */
 public class Vertex {
@@ -11,8 +12,11 @@ public class Vertex {
      */
     private int index;
 
+    private ArrayList<Vertex> neighbours;
+
     public Vertex(int index) {
         this.index = index;
+        this.neighbours = new ArrayList<>();
     }
 
     @Basic
@@ -21,8 +25,18 @@ public class Vertex {
     }
 
     @Basic
-    public void setIndex(int index) {
+    private void setIndex(int index) {
         this.index = index;
+    }
+
+    @Basic
+    public ArrayList<Vertex> getNeighbours() {
+        return neighbours;
+    }
+
+    @Basic
+    protected void setNeighbours(ArrayList<Vertex> neighbours) {
+        this.neighbours = neighbours;
     }
 
     /**

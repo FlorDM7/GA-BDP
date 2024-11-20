@@ -41,4 +41,11 @@ public class CrossingsTest {
         assertEquals(2, graph.calculateTotalCrossings());
     }
 
+    @Test
+    void test6() throws FileNotFoundException {
+        File file = new File("barycenter.txt");
+        BipartiteGraph graph = Input.textToGraph(file);
+        assertEquals(5, graph.calculateTotalCrossings());
+    }
+
 }

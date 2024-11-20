@@ -1,7 +1,7 @@
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
-import be.kuleuven.cs.som.annotate.Model;
-
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 /**
@@ -10,6 +10,12 @@ import java.util.*;
  * @author Flor De Meulemeester
  */
 public class BipartiteGraph implements BipartiteGraphInterface {
+
+    public static void main(String args[]) throws FileNotFoundException {
+        File file = new File("barycenter.txt");
+        BipartiteGraph graph = Input.textToGraph(file);
+        System.out.println(graph.runFirstHeuristic());
+    }
 
     /**
      * The number of vertices in the graph, this is initialized in the constructor.
@@ -24,8 +30,8 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     final int numberOfEdges;
     private HashMap<Integer, ArrayList<Integer>> verticesA = new HashMap<>();
     private HashMap<Integer, ArrayList<Integer>> verticesB = new HashMap<>();
-    public ArrayList<Integer> heigthA = new ArrayList<>();
-    public ArrayList<Integer> heigthB = new ArrayList<>();
+    public ArrayList<Integer> heightA = new ArrayList<>();
+    public ArrayList<Integer> heightB = new ArrayList<>();
 
     /**
      * Constructor for creating a bipartite graph.
@@ -56,13 +62,13 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         int i = 1;
         while (i <= numberOfVerticesInA) {
             verticesA.put(i, new ArrayList<>());
-            heigthA.add(i);
+            heightA.add(i);
             i++;
         }
         int j = numberOfVertices - b + 1;
         while (j <= numberOfVertices) {
             verticesB.put(j, new ArrayList<>());
-            heigthB.add(j);
+            heightB.add(j);
             j++;
         }
     }
@@ -78,8 +84,8 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     }
 
     protected void sortInput() {
-        Collections.sort(heigthA);
-        Collections.sort(heigthB);
+        Collections.sort(heightA);
+        Collections.sort(heightB);
     }
 
     @Immutable
@@ -97,7 +103,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      * K is #crossings that edges of i cause on edges of j
      */
     public int calculateValueOfK(int i, int j) {
-        if (!(i < j)) {
+        if (!(getHeightOfVertex(i) > getHeightOfVertex(j))) {
             return 0;
         }
         int k = 0;
@@ -137,25 +143,25 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     }
 
     @Basic
-    public ArrayList<Integer> getHeigthA() {
-        return heigthA;
+    public ArrayList<Integer> getHeightA() {
+        return heightA;
     }
 
     @Basic
-    public ArrayList<Integer> getHeigthB() {
-        return heigthB;
+    public ArrayList<Integer> getHeightB() {
+        return heightB;
     }
 
     /**
-     * Return the heigth of the vertex based on the y-axis.
+     * Return the height of the vertex based on the y-axis.
      * We assume that the graph is represented as two vertical lines on x=0 and x=1,
      * so that the nodes are places on those lines respectively.
      */
     public int getHeightOfVertex(int vertex) {
-        if (heigthA.contains(vertex)) {
-            return heigthA.size() - heigthA.indexOf(vertex);
+        if (getHeightA().contains(vertex)) {
+            return getHeightA().size() - getHeightA().indexOf(vertex);
         } else {
-            return heigthB.size() - heigthB.indexOf(vertex);
+            return getHeightB().size() - getHeightB().indexOf(vertex);
         }
     }
 
@@ -236,7 +242,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      */
     @Override
     public Map.Entry<Integer, List> runFirstHeuristic() {
-        return null;
+        return BaryCenter.heuristic(this);
     }
 
     /**

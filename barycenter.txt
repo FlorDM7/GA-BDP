@@ -1,0 +1,8 @@
+c Deze heb ik zelf getekend
+p bdp 3 4 6
+1 5
+1 7
+2 4
+2 6
+3 5
+3 7
