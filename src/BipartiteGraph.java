@@ -12,9 +12,10 @@ import java.util.*;
 public class BipartiteGraph implements BipartiteGraphInterface {
 
     public static void main(String args[]) throws FileNotFoundException {
-        File file = new File("barycenter.txt");
+        File file = new File("benchmarkset/extra_hard/1.gr");
         BipartiteGraph graph = Input.textToGraph(file);
-        System.out.println(graph.runFirstHeuristic());
+        System.out.println(graph.calculateTotalCrossings());
+        System.out.println(graph.runFirstHeuristic().getKey());
     }
 
     /**
@@ -103,7 +104,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      * K is #crossings that edges of i cause on edges of j
      */
     public int calculateValueOfK(int i, int j) {
-        if (!(getHeightOfVertex(i) > getHeightOfVertex(j))) {
+        if (!(getHeightOfVertexA(i) > getHeightOfVertexA(j))) {
             return 0;
         }
         int k = 0;
@@ -111,7 +112,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         List<Integer> neighboursOfJ = getVerticesInA().get(j);
         for (int neighbourOfI : neighboursOfI) {
             for (int neighbourOfJ : neighboursOfJ) {
-                if (getHeightOfVertex(neighbourOfI) < getHeightOfVertex(neighbourOfJ)) {
+                if (getHeightOfVertexB(neighbourOfI) < getHeightOfVertexB(neighbourOfJ)) {
                     k++;
                 }
             }
@@ -152,17 +153,27 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         return heightB;
     }
 
+    @Basic
+    protected void setHeightA(ArrayList<Integer> heightA) {
+        this.heightA = heightA;
+    }
+
+    @Basic
+    protected void setHeightB(ArrayList<Integer> heightB) {
+        this.heightB = heightB;
+    }
+
     /**
      * Return the height of the vertex based on the y-axis.
      * We assume that the graph is represented as two vertical lines on x=0 and x=1,
      * so that the nodes are places on those lines respectively.
      */
-    public int getHeightOfVertex(int vertex) {
-        if (getHeightA().contains(vertex)) {
-            return getHeightA().size() - getHeightA().indexOf(vertex);
-        } else {
-            return getHeightB().size() - getHeightB().indexOf(vertex);
-        }
+    public int getHeightOfVertexA(int vertex) {
+        return getHeightA().size() - getHeightA().indexOf(vertex);
+    }
+
+    public int getHeightOfVertexB(int vertex) {
+        return getHeightB().size() - getHeightB().indexOf(vertex);
     }
 
     /**

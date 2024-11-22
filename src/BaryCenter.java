@@ -10,6 +10,9 @@ public class BaryCenter {
         boolean improved = true;
         int oldCrossings = graph.calculateTotalCrossings();
         int newCrossings = oldCrossings;
+        int crossings = oldCrossings;
+        ArrayList<Integer> bestA = graph.getHeightA();
+        ArrayList<Integer> bestB = graph.getHeightB();
         while (improved) {
             // first we permute the vertices in A and we lock B
             HashMap<Integer, Long> verticesA = new HashMap<>();
@@ -27,26 +30,25 @@ public class BaryCenter {
 
             // check if we improved
             newCrossings = graph.calculateTotalCrossings();
-            if (newCrossings >= oldCrossings) {
+            if (newCrossings < oldCrossings) {
+                crossings = graph.calculateTotalCrossings();
+                bestA = graph.getHeightA();
+                bestB = graph.getHeightB();
+            } else {
                 improved = false;
             }
             oldCrossings = newCrossings;
-
-            System.out.println(graph.getHeightA());
-            System.out.println(graph.getHeightB());
-            System.out.println(oldCrossings);
         }
 
         // get the correct output format
-        int crossings = graph.calculateTotalCrossings();
-        List<Integer> list = new ArrayList<>(graph.getHeightA());
-        list.addAll(graph.getHeightB());
+        List<Integer> list = new ArrayList<>(bestA);
+        list.addAll(bestB);
         Map.Entry<Integer, List> result = new AbstractMap.SimpleEntry<>(crossings, list);
         return result;
     }
 
     /**
-     * Calculate the barycenter value of a vertex
+     * Calculate the barycenter value of a vertex.
      */
     public static long calculateBaryCenterValue(BipartiteGraph graph, int vertex, String group) {
         if (graph.getNeighborsOf(vertex).isEmpty()) {
