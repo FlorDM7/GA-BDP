@@ -12,10 +12,10 @@ import java.util.*;
 public class BipartiteGraph implements BipartiteGraphInterface {
 
     public static void main(String args[]) throws FileNotFoundException {
-        File file = new File("benchmarkset/extra_hard/1.gr");
+        File file = new File("splitting.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         System.out.println(graph.calculateTotalCrossings());
-        System.out.println(graph.runFirstHeuristic().getKey());
+        System.out.println(graph.runSecondHeuristic());
     }
 
     /**
@@ -163,6 +163,14 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         this.heightB = heightB;
     }
 
+    public void swapA(int index1, int index2) {
+        Collections.swap(getHeightA(), index1, index2);
+    }
+
+    public void swapB(int index1, int index2) {
+        Collections.swap(getHeightB(), index1, index2);
+    }
+
     /**
      * Return the height of the vertex based on the y-axis.
      * We assume that the graph is represented as two vertical lines on x=0 and x=1,
@@ -263,6 +271,6 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      */
     @Override
     public Map.Entry<Integer, List> runSecondHeuristic() {
-        return null;
+        return Splitting.heuristic(this);
     }
 }

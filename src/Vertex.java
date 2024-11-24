@@ -12,6 +12,9 @@ public class Vertex {
      */
     private int index;
 
+    /**
+     * The neighbour of a vertex (also vertices).
+     */
     private ArrayList<Vertex> neighbours;
 
     public Vertex(int index) {
@@ -42,8 +45,8 @@ public class Vertex {
     /**
      * Compares the index of the vertex with the index of another vertex.
      *
-     * @param vertex
-     * The vertex to compare with
+     * @param   vertex
+     *          The vertex to compare with
      */
     public boolean equals(Vertex vertex) {
         return index == vertex.getIndex();

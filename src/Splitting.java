@@ -17,6 +17,9 @@ public class Splitting {
         ArrayList<Integer> bestA = graph.getHeightA();
         ArrayList<Integer> bestB = graph.getHeightB();
         while (improved) {
+            // do splitting on both sides once
+            splittingRecursiveA(graph, 0, bestA.size()-1);
+            splittingRecursiveB(graph, 0, bestB.size()-1);
 
             // check if we improved
             newCrossings = graph.calculateTotalCrossings();
@@ -38,8 +41,60 @@ public class Splitting {
     }
 
     private static void splittingRecursiveA(BipartiteGraph graph, int left, int right) {
-        int mid = left + (right - left) / 2;
-        int vertex = left;
+        if (left < right) {
+            int mid = (left + right) / 2;
+            int oldCrossings = graph.calculateTotalCrossings();
+            for (int vertex : graph.getVerticesInA().keySet()) {
+                if (left <= graph.getHeightOfVertexA(vertex) && graph.getHeightOfVertexA(vertex) <= right) {
+                    int index = graph.getHeightA().indexOf(vertex);
+                    if (graph.getHeightOfVertexA(vertex) > mid) {
+                        graph.swapA(index, mid - 1);
+                        int newCrossings = graph.calculateTotalCrossings();
+                        if (newCrossings >= oldCrossings) {
+                            graph.swapA(index, mid - 1);
+                        } else {
+                            oldCrossings = newCrossings;
+                        }
+                    } else if (graph.getHeightOfVertexA(vertex) < mid) {
+                        graph.swapA(index, mid + 1);
+                        int newCrossings = graph.calculateTotalCrossings();
+                        if (newCrossings >= oldCrossings) {
+                            graph.swapA(index, mid + 1);
+                        } else {
+                            oldCrossings = newCrossings;
+                        }
+                    }
+                }
+            }
+            splittingRecursiveA(graph, left, mid - 1);
+            splittingRecursiveA(graph, mid+1, right);
+        }
     }
 
+    private static void splittingRecursiveB(BipartiteGraph graph, int left, int right) {
+        if (left < right) {
+            int mid = (left + right) / 2;
+            for (int vertex : graph.getVerticesInB().keySet()) {
+                int oldCrossings = graph.calculateTotalCrossings();
+                if (left <= graph.getHeightOfVertexB(vertex) && graph.getHeightOfVertexB(vertex) <= right) {
+                    int index = graph.getHeightB().indexOf(vertex);
+                    if (graph.getHeightOfVertexB(vertex) > mid) {
+                        graph.swapB(index, mid - 1);
+                        int newCrossings = graph.calculateTotalCrossings();
+                        if (newCrossings >= oldCrossings) {
+                            graph.swapB(index, mid - 1);
+                        }
+                    } else if (graph.getHeightOfVertexB(vertex) < mid) {
+                        graph.swapB(index, mid + 1);
+                        int newCrossings = graph.calculateTotalCrossings();
+                        if (newCrossings >= oldCrossings) {
+                            graph.swapB(index, mid + 1);
+                        }
+                    }
+                }
+            }
+            splittingRecursiveB(graph, left, mid - 1);
+            splittingRecursiveB(graph, mid + 1, right);
+        }
+    }
 }

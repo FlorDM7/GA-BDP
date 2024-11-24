@@ -1,7 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 
-public class BaryCenterTest {
+public class BaryCenterExperiment {
 
     public static void main(String[] args) throws FileNotFoundException {
         File[] files = new File("benchmarkset/GraphBase_first_experiment").listFiles();
