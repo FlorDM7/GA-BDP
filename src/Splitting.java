@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.List;
 
 /**
- * This class will contain a method that solves BDP with the splitting heuristic.
+ * This class contains a method that solves BDP with the splitting heuristic.
  * @author Flor De Meulemeester
  */
 public class Splitting {
@@ -44,7 +44,7 @@ public class Splitting {
         if (left < right) {
             int mid = (left + right) / 2;
             int oldCrossings = graph.calculateTotalCrossings();
-            for (int vertex : graph.getVerticesInA().keySet()) {
+            for (int vertex : graph.getVerticesOf("A").keySet()) {
                 if (left <= graph.getHeightOfVertexA(vertex) && graph.getHeightOfVertexA(vertex) <= right) {
                     int index = graph.getHeightA().indexOf(vertex);
                     if (graph.getHeightOfVertexA(vertex) > mid) {
@@ -74,7 +74,7 @@ public class Splitting {
     private static void splittingRecursiveB(BipartiteGraph graph, int left, int right) {
         if (left < right) {
             int mid = (left + right) / 2;
-            for (int vertex : graph.getVerticesInB().keySet()) {
+            for (int vertex : graph.getVerticesOf("B").keySet()) {
                 int oldCrossings = graph.calculateTotalCrossings();
                 if (left <= graph.getHeightOfVertexB(vertex) && graph.getHeightOfVertexB(vertex) <= right) {
                     int index = graph.getHeightB().indexOf(vertex);

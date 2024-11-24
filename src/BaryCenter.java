@@ -1,7 +1,7 @@
 import java.util.*;
 
 /**
- * This class will contain a method that solves BDP with the barycenter heuristic.
+ * This class contains a method that solves BDP with the barycenter heuristic.
  * @author Flor De Meulemeester
  */
 public class BaryCenter {

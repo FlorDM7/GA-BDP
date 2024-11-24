@@ -12,10 +12,10 @@ import java.util.*;
 public class BipartiteGraph implements BipartiteGraphInterface {
 
     public static void main(String args[]) throws FileNotFoundException {
-        File file = new File("splitting.txt");
+        File file = new File("barycenter.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         System.out.println(graph.calculateTotalCrossings());
-        System.out.println(graph.runSecondHeuristic());
+        System.out.println(graph.runMetaheuristicTest(6));
     }
 
     /**
@@ -90,13 +90,13 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     }
 
     @Immutable
-    private int getFirstIndexOfA() {
+    public int getFirstIndexOfA() {
         return 1;
     }
 
     @Immutable
-    private int getFirstIndexOfB() {
-        return getNumberOfVertices() - getVerticesInB().size() + 1;
+    public int getFirstIndexOfB() {
+        return getNumberOfVertices() - verticesB.size() + 1;
     }
 
     /**
@@ -108,8 +108,8 @@ public class BipartiteGraph implements BipartiteGraphInterface {
             return 0;
         }
         int k = 0;
-        List<Integer> neighboursOfI = getVerticesInA().get(i);
-        List<Integer> neighboursOfJ = getVerticesInA().get(j);
+        List<Integer> neighboursOfI = getVerticesOf("A").get(i);
+        List<Integer> neighboursOfJ = getVerticesOf("A").get(j);
         for (int neighbourOfI : neighboursOfI) {
             for (int neighbourOfJ : neighboursOfJ) {
                 if (getHeightOfVertexB(neighbourOfI) < getHeightOfVertexB(neighbourOfJ)) {
@@ -118,6 +118,11 @@ public class BipartiteGraph implements BipartiteGraphInterface {
             }
         }
         return k;
+    }
+
+    public void differenceInCrossingsAfterSwap() {
+        // TODO
+        // op deze manier niet telkens total crossings opnieuw berekenen
     }
 
     /**
@@ -133,14 +138,25 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         return crossings;
     }
 
-    @Basic
-    public HashMap<Integer, ArrayList<Integer>> getVerticesInA() {
-        return verticesA;
+
+    public HashMap<Integer, ArrayList<Integer>> getVerticesOf(String group) {
+        if (group.equals("A")) {
+            return verticesA;
+        }
+        if (group.equals("B")) {
+            return verticesB;
+        }
+        return null;
     }
 
-    @Basic
-    public HashMap<Integer, ArrayList<Integer>> getVerticesInB() {
-        return verticesB;
+    public ArrayList<Integer> getHeightOf(String group) {
+        if (group.equals("A")) {
+            return heightA;
+        }
+        if (group.equals("B")) {
+            return heightB;
+        }
+        return null;
     }
 
     @Basic
@@ -171,11 +187,27 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         Collections.swap(getHeightB(), index1, index2);
     }
 
+    public void swap(int index1, int index2, String group) {
+        if (group.equals("A")) {
+            Collections.swap(getHeightA(), index1, index2);
+        } else if (group.equals("B")) {
+            Collections.swap(getHeightB(), index1, index2);
+        }
+    }
+
     /**
      * Return the height of the vertex based on the y-axis.
      * We assume that the graph is represented as two vertical lines on x=0 and x=1,
      * so that the nodes are places on those lines respectively.
      */
+    public int getHeightOfVertex(int vertex) {
+        if (vertex < getFirstIndexOfB()) {
+            return getHeightOfVertexA(vertex);
+        } else {
+            return getHeightOfVertexB(vertex);
+        }
+    }
+
     public int getHeightOfVertexA(int vertex) {
         return getHeightA().size() - getHeightA().indexOf(vertex);
     }
@@ -251,7 +283,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      */
     @Override
     public Map.Entry<Integer, List> runMetaheuristicTest(int maxIterations) {
-        return null;
+        return TabuSearch.heuristic(this, maxIterations);
     }
 
     /**
