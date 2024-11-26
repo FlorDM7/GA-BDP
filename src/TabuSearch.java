@@ -9,7 +9,7 @@ public class TabuSearch {
 
     static final int maxTabuSize = 30;
 
-    public static Map.Entry<Integer, List> heuristic(BipartiteGraph graph, int maxIterations) {
+    public static Map.Entry<Integer, List> heuristic(BipartiteGraph graph, int maxIterations, int tabuSize) {
         // choose an initial solution
         Map.Entry<Integer, List> initial = initializeSolution(graph);
         // initialize the "best" solution
@@ -20,7 +20,7 @@ public class TabuSearch {
         int currentIterations = 0;
 
         // we define a neighbourhood move as a swap between any two nodes
-        // in the tabulist we keep track of recently executed move so that they won't be repeated
+        // in the tabulist we keep track of recently executed moves so that they won't be repeated
         List<Pair<Integer, Integer>> tabulist = new ArrayList<>();
         Pair<Integer, Integer> bestCandidate = null;
         int bestCandidateCrossings = objectiveFunction(graph);
@@ -41,14 +41,13 @@ public class TabuSearch {
             }
 
             if (bestCandidate == null) {
-                currentIterations++;
-                continue;
+                break;
             }
 
             // execute the move and also update tabulist
             graph.swap(bestCandidate.first(), bestCandidate.second(), group);
             tabulist.add(bestCandidate);
-            if (tabulist.size() > maxTabuSize) {
+            if (tabulist.size() > tabuSize) {
                 tabulist.removeFirst();
             }
 
@@ -67,6 +66,13 @@ public class TabuSearch {
         List<Integer> list = new ArrayList<>(bestA);
         list.addAll(bestB);
         return new AbstractMap.SimpleEntry<>(bestCrossings, list);
+    }
+
+    /**
+     * Overloaded method for when there is no tabuSize given.
+     */
+    public static Map.Entry<Integer, List> heuristic(BipartiteGraph graph, int maxIterations) {
+        return heuristic(graph, maxIterations, maxTabuSize);
     }
 
     public static Map.Entry<Integer, List> initializeSolution(BipartiteGraph graph) {

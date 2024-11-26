@@ -26,7 +26,7 @@ public class BaryCenter {
             for (int vertex : graph.getHeightB()) {
                 verticesB.put(vertex, BaryCenter.calculateBaryCenterValue(graph, vertex, "B"));
             }
-            Collections.sort(graph.getHeightB(), Comparator.comparing(verticesB::get));
+            graph.getHeightB().sort(Comparator.comparing(verticesB::get));
 
             // check if we improved
             newCrossings = graph.calculateTotalCrossings();

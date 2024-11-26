@@ -3,6 +3,7 @@ import java.util.ArrayList;
 
 /**
  * This class represents a vertex within a bipartite graph.
+ * I don't know yet if I will use it.
  * @author Flor De Meulemeester
  */
 public class Vertex {
@@ -11,6 +12,11 @@ public class Vertex {
      * The index of a vertex.
      */
     private int index;
+
+    /**
+     * The height of a vertex.
+     */
+    private int height;
 
     /**
      * The neighbour of a vertex (also vertices).

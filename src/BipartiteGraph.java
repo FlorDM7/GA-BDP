@@ -104,6 +104,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      * K is #crossings that edges of i cause on edges of j
      */
     public int calculateValueOfK(int i, int j) {
+        // iedere keer opnieuw de index van een vertex zoeken
         if (!(getHeightOfVertexA(i) > getHeightOfVertexA(j))) {
             return 0;
         }
@@ -208,10 +209,16 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         }
     }
 
+    /**
+     * Deze methode MOET herwerkt wordt.
+     */
     public int getHeightOfVertexA(int vertex) {
         return getHeightA().size() - getHeightA().indexOf(vertex);
     }
 
+    /**
+     * En deze dan ook natuurlijk
+     */
     public int getHeightOfVertexB(int vertex) {
         return getHeightB().size() - getHeightB().indexOf(vertex);
     }

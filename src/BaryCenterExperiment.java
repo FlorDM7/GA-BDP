@@ -9,15 +9,16 @@ public class BaryCenterExperiment {
         int j = 0;
         int average = 0;
         int original = 0;
+        long startTime = System.currentTimeMillis();
         for (File file : files) {
             BipartiteGraph graph = Input.textToGraph(file);
             original += graph.calculateTotalCrossings();
-            average += graph.runSecondHeuristic().getKey();
+            average += graph.runFirstHeuristic().getKey();
             j++;
             if (j % 100 == 0) {
                 float averageCrossings = (float) average / 100;
                 original = original / 100;
-                long improvement = (long) ((original-averageCrossings)/original * 100);
+                long improvement = (long) ((1 -averageCrossings/original) * 100);
                 System.out.println("Average crossings with " + edges + " edges:\t" + averageCrossings + "\t(" + original + ")" + "\t(" + improvement + "%)");
                 average = 0;
                 original = 0;
@@ -25,5 +26,8 @@ public class BaryCenterExperiment {
                 edges += 10;
             }
         }
+        long stopTime = System.currentTimeMillis();
+        float elapsedTime = (float) (stopTime - startTime) /1000;
+        System.out.println("Elapsed time: " + elapsedTime + " s");
     }
 }
