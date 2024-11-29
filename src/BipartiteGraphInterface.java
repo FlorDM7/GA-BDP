@@ -2,7 +2,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-
 public interface BipartiteGraphInterface<Vertex> {
 
     /**
@@ -37,25 +36,25 @@ public interface BipartiteGraphInterface<Vertex> {
 
     /**
      *  Apply the chosen metaheuristic for a maximum of maxIterations iterations. This method returns a Map Entry
-     *  containing an Integer representing the number of crossings for the acquired solution as well as a List of
+     *  containing a Long representing the number of crossings for the acquired solution as well as a List of
      *  Vertices representing the order of the vertices in the acquired solution.
      */
-    Map.Entry<Integer,List<Vertex>> runMetaheuristicTest(int maxIterations);
+    Map.Entry<Long,List<Vertex>> runMetaheuristicTest(int maxIterations);
 
 
     /**
-     *  Apply the first chosen heuristic. This method returns a Map Entry containing an Integer representing the number
+     *  Apply the first chosen heuristic. This method returns a Map Entry containing a Long representing the number
      *  of crossings for the acquired solution as well as a List of Vertices representing the order of the vertices in
      *  the acquired solution.
      */
-    Map.Entry<Integer,List<Vertex>> runFirstHeuristic();
+    Map.Entry<Long,List<Vertex>> runFirstHeuristic();
 
 
     /**
-     *  Apply the second chosen heuristic. This method returns a Map Entry containing an Integer representing the number
+     *  Apply the second chosen heuristic. This method returns a Map Entry containing a Long representing the number
      *  of crossings for the acquired solution as well as a List of Vertices representing the order of the vertices in
      *  the acquired solution.
      */
-    Map.Entry<Integer,List<Vertex>> runSecondHeuristic();
+    Map.Entry<Long,List<Vertex>> runSecondHeuristic();
 
 }

@@ -9,13 +9,13 @@ public class TabuSearch {
 
     static final int maxTabuSize = 30;
 
-    public static Map.Entry<Integer, List> heuristic(BipartiteGraph graph, int maxIterations, int tabuSize) {
+    public static Map.Entry<Long, List> heuristic(BipartiteGraph graph, int maxIterations, int tabuSize) {
         // choose an initial solution
-        Map.Entry<Integer, List> initial = initializeSolution(graph);
+        Map.Entry<Long, List> initial = initializeSolution(graph);
         // initialize the "best" solution
-        int bestCrossings = initial.getKey();
-        List bestA = initial.getValue().subList(0, graph.getFirstIndexOfB() - 1);
-        List bestB = initial.getValue().subList(graph.getFirstIndexOfB() - 1, graph.getNumberOfVertices());
+        long bestCrossings = initial.getKey();
+        HashMap<Integer, Integer> bestA = graph.getHeightA();
+        HashMap<Integer, Integer> bestB = graph.getHeightB();
         // keep track of the number of iterations
         int currentIterations = 0;
 
@@ -23,7 +23,7 @@ public class TabuSearch {
         // in the tabulist we keep track of recently executed moves so that they won't be repeated
         List<Pair<Integer, Integer>> tabulist = new ArrayList<>();
         Pair<Integer, Integer> bestCandidate = null;
-        int bestCandidateCrossings = objectiveFunction(graph);
+        long bestCandidateCrossings = objectiveFunction(graph);
 
         while (!stoppingCondition(currentIterations, maxIterations)) {
             String group = decideGroup(currentIterations);
@@ -63,33 +63,33 @@ public class TabuSearch {
         }
 
         // return solution in correct format
-        List<Integer> list = new ArrayList<>(bestA);
-        list.addAll(bestB);
+        List<Integer> list = graph.heightToSequenceA(bestA);
+        list.addAll(graph.heightToSequenceB(bestB));
         return new AbstractMap.SimpleEntry<>(bestCrossings, list);
     }
 
     /**
      * Overloaded method for when there is no tabuSize given.
      */
-    public static Map.Entry<Integer, List> heuristic(BipartiteGraph graph, int maxIterations) {
+    public static Map.Entry<Long, List> heuristic(BipartiteGraph graph, int maxIterations) {
         return heuristic(graph, maxIterations, maxTabuSize);
     }
 
-    public static Map.Entry<Integer, List> initializeSolution(BipartiteGraph graph) {
-        List<Integer> list = new ArrayList<>(graph.getHeightA());
-        list.addAll(graph.getHeightB());
+    public static Map.Entry<Long, List> initializeSolution(BipartiteGraph graph) {
+        List<Integer> list = new ArrayList<>(graph.getSequenceA());
+        list.addAll(graph.getSequenceB());
         return new AbstractMap.SimpleEntry<>(graph.calculateTotalCrossings(), list);
     }
 
-    public static Map.Entry<Integer, List> initializeWIthBaryCenter(BipartiteGraph graph) {
+    public static Map.Entry<Long, List> initializeWIthBaryCenter(BipartiteGraph graph) {
         return BaryCenter.heuristic(graph);
     }
 
-    public static Map.Entry<Integer, List> initializeWithSplitting(BipartiteGraph graph) {
+    public static Map.Entry<Long, List> initializeWithSplitting(BipartiteGraph graph) {
         return Splitting.heuristic(graph);
     }
 
-    public static int objectiveFunction(BipartiteGraph graph) {
+    public static long objectiveFunction(BipartiteGraph graph) {
         return graph.calculateTotalCrossings();
     }
 
@@ -99,8 +99,10 @@ public class TabuSearch {
 
     public static List<Pair<Integer, Integer>> getNeighbours(BipartiteGraph graph, String group) {
         List<Pair<Integer, Integer>> neighbours = new ArrayList<>();
-        for (int i = 0; i < graph.getVerticesOf(group).size(); i++) {
-            for (int j = 0; j < graph.getVerticesOf(group).size(); j++) {
+        int firstIndex = graph.getFirstIndexOfGroup(group);
+        int lastIndex = firstIndex + graph.getNumberOfVerticesInGroup(group);
+        for (int i = firstIndex; i < lastIndex; i++) {
+            for (int j = firstIndex; j < lastIndex; j++) {
                 if (i != j) {
                     neighbours.add(new Pair<>(i, j));
                 }

@@ -8,7 +8,7 @@ public class BaryCenterExperiment {
         int edges = 10;
         int j = 0;
         int average = 0;
-        int original = 0;
+        long original = 0;
         long startTime = System.currentTimeMillis();
         for (File file : files) {
             BipartiteGraph graph = Input.textToGraph(file);

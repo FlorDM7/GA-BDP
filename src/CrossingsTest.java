@@ -48,4 +48,11 @@ public class CrossingsTest {
         assertEquals(5, graph.calculateTotalCrossings());
     }
 
+    @Test
+    void test7() throws FileNotFoundException {
+        File file = new File("benchmarkset/extra_hard/1.gr");
+        BipartiteGraph graph = Input.textToGraph(file);
+        assertTrue(graph.calculateTotalCrossings() > 27_000_000);
+    }
+
 }

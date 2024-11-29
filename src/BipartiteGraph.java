@@ -12,10 +12,10 @@ import java.util.*;
 public class BipartiteGraph implements BipartiteGraphInterface {
 
     public static void main(String args[]) throws FileNotFoundException {
-        File file = new File("barycenter.txt");
+        File file = new File("splitting.txt");
         BipartiteGraph graph = Input.textToGraph(file);
-        System.out.println(graph.calculateTotalCrossings());
-        System.out.println(graph.runMetaheuristicTest(6));
+        System.out.println("Before: " + graph.calculateTotalCrossings());
+        System.out.println("After: " + graph.runSecondHeuristic());
     }
 
     /**
@@ -24,15 +24,37 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     final int numberOfVertices;
 
     /**
-     * The number of vertices in subset A of the vertices of the graph, this number is also initialized in the constructor
+     * The number of vertices in subset A of the vertices of the graph, this number is also initialized in the constructor.
      */
     final int numberOfVerticesInA;
+
+    /**
+     * The number of vertices in subset B of the vertices of the graph, this number is also initialized in the constructor.
+     */
     final int numberOfVerticesInB;
+
+    /**
+     * The number of edges in the graph, also initialized in the constructor.
+     */
     final int numberOfEdges;
+
+    /**
+     * Indexen en dan de indexen van de buren
+     */
     private HashMap<Integer, ArrayList<Integer>> verticesA = new HashMap<>();
     private HashMap<Integer, ArrayList<Integer>> verticesB = new HashMap<>();
-    public ArrayList<Integer> heightA = new ArrayList<>();
-    public ArrayList<Integer> heightB = new ArrayList<>();
+
+    /**
+     * Array van indexen die de volgorde bijhouden (beetje inefficient)
+     */
+    public ArrayList<Integer> sequenceA = new ArrayList<>();
+    public ArrayList<Integer> sequenceB = new ArrayList<>();
+
+    /**
+     * Indexen die wijzen naar hoogte (kan ik constante tijd opgehaald worden)
+     */
+    public HashMap<Integer, Integer> heightA = new HashMap<>();
+    public HashMap<Integer, Integer> heightB = new HashMap<>();
 
     /**
      * Constructor for creating a bipartite graph.
@@ -63,13 +85,15 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         int i = 1;
         while (i <= numberOfVerticesInA) {
             verticesA.put(i, new ArrayList<>());
-            heightA.add(i);
+            sequenceA.add(i);
+            heightA.put(i, numberOfVerticesInA - i + 1);
             i++;
         }
         int j = numberOfVertices - b + 1;
         while (j <= numberOfVertices) {
             verticesB.put(j, new ArrayList<>());
-            heightB.add(j);
+            sequenceB.add(j);
+            heightB.put(j, numberOfVertices - j + 1);
             j++;
         }
     }
@@ -85,8 +109,8 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     }
 
     protected void sortInput() {
-        Collections.sort(heightA);
-        Collections.sort(heightB);
+        Collections.sort(sequenceA);
+        Collections.sort(sequenceB);
     }
 
     @Immutable
@@ -99,9 +123,17 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         return getNumberOfVertices() - verticesB.size() + 1;
     }
 
+    public int getFirstIndexOfGroup(String group) {
+        if (group.equals("A")) {
+            return getFirstIndexOfA();
+        } else {
+            return getFirstIndexOfB();
+        }
+    }
+
     /**
      * Calculate the K value of a given (i,j) pair where i and j are in the same subset and i < j
-     * K is #crossings that edges of i cause on edges of j
+     * K(i,j) = #crossings that edges of i cause on edges of j
      */
     public int calculateValueOfK(int i, int j) {
         // iedere keer opnieuw de index van een vertex zoeken
@@ -122,17 +154,16 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     }
 
     public void differenceInCrossingsAfterSwap() {
-        // TODO
-        // op deze manier niet telkens total crossings opnieuw berekenen
+        // TODO op deze manier niet telkens total crossings opnieuw berekenen
     }
 
     /**
      * Calculates the total #crossings in the graph using the help function with K values.
      */
-    public int calculateTotalCrossings() {
-        int crossings = 0;
-        for (int i=1; i<getFirstIndexOfB(); i++) {
-            for (int j=1; j<getFirstIndexOfB(); j++) {
+    public long calculateTotalCrossings() {
+        long crossings = 0;
+        for (int i=1; i < getFirstIndexOfB(); i++) {
+            for (int j=1; j < getFirstIndexOfB(); j++) {
                 crossings += calculateValueOfK(i, j);
             }
         }
@@ -150,49 +181,65 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         return null;
     }
 
-    public ArrayList<Integer> getHeightOf(String group) {
+    public ArrayList<Integer> getSequenceOf(String group) {
         if (group.equals("A")) {
-            return heightA;
+            return sequenceA;
         }
         if (group.equals("B")) {
-            return heightB;
+            return sequenceB;
         }
         return null;
     }
 
     @Basic
-    public ArrayList<Integer> getHeightA() {
-        return heightA;
+    public ArrayList<Integer> getSequenceA() {
+        return sequenceA;
     }
 
     @Basic
-    public ArrayList<Integer> getHeightB() {
-        return heightB;
+    public ArrayList<Integer> getSequenceB() {
+        return sequenceB;
+    }
+
+    public ArrayList<Integer> getSequenceOfGroup(String group) {
+        if (group.equals("A")) {
+            return getSequenceA();
+        } else {
+            return getSequenceB();
+        }
     }
 
     @Basic
-    protected void setHeightA(ArrayList<Integer> heightA) {
-        this.heightA = heightA;
+    protected void setSequenceA(ArrayList<Integer> sequenceA) {
+        this.sequenceA = sequenceA;
     }
 
     @Basic
-    protected void setHeightB(ArrayList<Integer> heightB) {
-        this.heightB = heightB;
+    protected void setSequenceB(ArrayList<Integer> sequenceB) {
+        this.sequenceB = sequenceB;
     }
 
     public void swapA(int index1, int index2) {
-        Collections.swap(getHeightA(), index1, index2);
+        // Collections.swap(getSequenceA(), index1, index2);
+        int h1 = heightA.get(index1);
+        int h2 = heightA.get(index2);
+        heightA.put(index1, h2);
+        heightA.put(index2, h1);
     }
 
     public void swapB(int index1, int index2) {
-        Collections.swap(getHeightB(), index1, index2);
+        // Collections.swap(getSequenceB(), index1, index2);
+        int h1 = heightB.get(index1);
+        int h2 = heightB.get(index2);
+        heightB.put(index1, h2);
+        heightB.put(index2, h1);
     }
 
     public void swap(int index1, int index2, String group) {
         if (group.equals("A")) {
-            Collections.swap(getHeightA(), index1, index2);
+            swapA(index1, index2);
         } else if (group.equals("B")) {
-            Collections.swap(getHeightB(), index1, index2);
+            swapB(index1, index2);
         }
     }
 
@@ -209,18 +256,72 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         }
     }
 
-    /**
-     * Deze methode MOET herwerkt wordt.
-     */
     public int getHeightOfVertexA(int vertex) {
-        return getHeightA().size() - getHeightA().indexOf(vertex);
+        return heightA.get(vertex);
     }
 
-    /**
-     * En deze dan ook natuurlijk
-     */
     public int getHeightOfVertexB(int vertex) {
-        return getHeightB().size() - getHeightB().indexOf(vertex);
+        return heightB.get(vertex);
+    }
+
+    @Basic
+    public HashMap<Integer, Integer> getHeightA() {
+        return heightA;
+    }
+
+    @Basic
+    public HashMap<Integer, Integer> getHeightB() {
+        return heightB;
+    }
+
+    public HashMap<Integer, Integer> getHeightOfGroup(String group) {
+        if (group.equals("A")) {
+            return getHeightA();
+        } else {
+            return getHeightB();
+        }
+    }
+
+    public List<Integer> heightToSequenceGroup(HashMap<Integer, Integer> height, String group) {
+        if (group.equals("A")) {
+            return heightToSequenceA(height);
+        } else {
+            return heightToSequenceB(height);
+        }
+    }
+
+    public List<Integer> heightToSequenceA(HashMap<Integer, Integer> height) {
+        sequenceA.sort(Collections.reverseOrder(Comparator.comparing(height::get)));
+        return sequenceA;
+    }
+
+    public List<Integer> heightToSequenceB(HashMap<Integer, Integer> height) {
+        sequenceB.sort(Collections.reverseOrder(Comparator.comparing(height::get)));
+        return sequenceB;
+    }
+
+    public HashMap<Integer,Integer> sequenceToHeightA(List<Integer> sequence) {
+        for (int i = 0; i < sequence.size(); i++) {
+            int index = sequence.get(i);
+            heightA.put(index, numberOfVerticesInA - i);
+        }
+        return heightA;
+    }
+
+    public HashMap<Integer,Integer> sequenceToHeightB(List<Integer> sequence) {
+        for (int i = 0; i < sequence.size(); i++) {
+            int index = sequence.get(i);
+            heightB.put(index, numberOfVertices - numberOfVerticesInA - i);
+        }
+        return heightB;
+    }
+
+    public int getNumberOfVerticesInGroup(String group) {
+        if (group.equals("A")) {
+            return numberOfVerticesInA;
+        } else {
+            return numberOfVerticesInB;
+        }
     }
 
     /**
@@ -289,7 +390,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      * Vertices representing the order of the vertices in the acquired solution.
      */
     @Override
-    public Map.Entry<Integer, List> runMetaheuristicTest(int maxIterations) {
+    public Map.Entry<Long, List> runMetaheuristicTest(int maxIterations) {
         return TabuSearch.heuristic(this, maxIterations);
     }
 
@@ -299,7 +400,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      * the acquired solution.
      */
     @Override
-    public Map.Entry<Integer, List> runFirstHeuristic() {
+    public Map.Entry<Long, List> runFirstHeuristic() {
         return BaryCenter.heuristic(this);
     }
 
@@ -309,7 +410,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      * the acquired solution.
      */
     @Override
-    public Map.Entry<Integer, List> runSecondHeuristic() {
+    public Map.Entry<Long, List> runSecondHeuristic() {
         return Splitting.heuristic(this);
     }
 }

@@ -6,27 +6,29 @@ import java.util.*;
  */
 public class BaryCenter {
 
-    public static Map.Entry<Integer, List> heuristic(BipartiteGraph graph) {
+    public static Map.Entry<Long, List> heuristic(BipartiteGraph graph) {
         boolean improved = true;
-        int oldCrossings = graph.calculateTotalCrossings();
-        int newCrossings = oldCrossings;
-        int crossings = oldCrossings;
-        ArrayList<Integer> bestA = graph.getHeightA();
-        ArrayList<Integer> bestB = graph.getHeightB();
+        long oldCrossings = graph.calculateTotalCrossings();
+        long newCrossings = oldCrossings;
+        long crossings = oldCrossings;
+        HashMap<Integer, Integer> bestA = graph.getHeightA();
+        HashMap<Integer, Integer> bestB = graph.getHeightB();
         while (improved) {
             // first we permute the vertices in A and we lock B
             HashMap<Integer, Long> verticesA = new HashMap<>();
-            for (int vertex : graph.getHeightA()) {
+            for (int vertex : graph.getSequenceA()) {
                 verticesA.put(vertex, BaryCenter.calculateBaryCenterValue(graph, vertex, "A"));
             }
-            Collections.sort(graph.getHeightA(), Comparator.comparing(verticesA::get));
+            graph.getSequenceA().sort(Comparator.comparing(verticesA::get));
+            graph.sequenceToHeightA(graph.getSequenceA());
 
             // then we permute the vertices in B and we lock A
             HashMap<Integer, Long> verticesB = new HashMap<>();
-            for (int vertex : graph.getHeightB()) {
+            for (int vertex : graph.getSequenceB()) {
                 verticesB.put(vertex, BaryCenter.calculateBaryCenterValue(graph, vertex, "B"));
             }
-            graph.getHeightB().sort(Comparator.comparing(verticesB::get));
+            graph.getSequenceB().sort(Comparator.comparing(verticesB::get));
+            graph.sequenceToHeightB(graph.getSequenceB());
 
             // check if we improved
             newCrossings = graph.calculateTotalCrossings();
@@ -41,9 +43,9 @@ public class BaryCenter {
         }
 
         // get the correct output format
-        List<Integer> list = new ArrayList<>(bestA);
-        list.addAll(bestB);
-        Map.Entry<Integer, List> result = new AbstractMap.SimpleEntry<>(crossings, list);
+        List<Integer> list = graph.heightToSequenceA(bestA);
+        list.addAll(graph.heightToSequenceB(bestB));
+        Map.Entry<Long, List> result = new AbstractMap.SimpleEntry<>(crossings, list);
         return result;
     }
 
@@ -57,11 +59,11 @@ public class BaryCenter {
         int average = 0;
         if (group.equals("A")) {
             for (Object neighbour : graph.getNeighborsOf(vertex)) {
-                average += graph.getHeightB().indexOf(neighbour);
+                average += graph.getSequenceB().indexOf(neighbour);
             }
         } else {
             for (Object neighbour : graph.getNeighborsOf(vertex)) {
-                average += graph.getHeightA().indexOf(neighbour);
+                average += graph.getSequenceA().indexOf(neighbour);
             }
         }
         return average / graph.getNeighborsOf(vertex).size();
