@@ -1,3 +1,7 @@
+package Heuristics;
+
+import Graph.BipartiteGraph;
+
 import java.util.*;
 
 /**

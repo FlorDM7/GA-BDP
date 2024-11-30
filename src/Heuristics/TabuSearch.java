@@ -1,3 +1,6 @@
+package Heuristics;
+
+import Graph.BipartiteGraph;
 import org.testng.internal.collections.Pair;
 import java.util.*;
 

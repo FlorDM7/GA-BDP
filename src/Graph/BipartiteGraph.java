@@ -1,3 +1,8 @@
+package Graph;
+
+import Heuristics.BaryCenter;
+import Heuristics.Splitting;
+import Heuristics.TabuSearch;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import java.io.File;
@@ -385,7 +390,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     }
 
     /**
-     * Apply the chosen metaheuristic for a maximum of maxIterations iterations. This method returns a Map Entry
+     * Apply the chosen meta-heuristic for a maximum of maxIterations iterations. This method returns a Map Entry
      * containing an Integer representing the number of crossings for the acquired solution as well as a List of
      * Vertices representing the order of the vertices in the acquired solution.
      */

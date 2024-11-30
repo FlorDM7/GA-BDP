@@ -1,6 +1,9 @@
+package Tests;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-
+import Graph.BipartiteGraph;
+import Graph.Input;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
