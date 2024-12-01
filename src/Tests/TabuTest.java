@@ -6,6 +6,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TabuTest {
@@ -22,7 +26,8 @@ public class TabuTest {
         File file = new File("benchmarkset/tiny_test_set/cycle_8_shuffled.gr");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
-        assertTrue(graph.runMetaheuristicTest(iterations).getKey() < crossings);
+        Map.Entry<Long, List> solution = graph.runMetaheuristicTest(iterations);
+        assertTrue(solution.getKey() < crossings);
     }
 
     @Test

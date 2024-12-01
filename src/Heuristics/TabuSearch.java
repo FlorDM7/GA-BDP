@@ -27,18 +27,23 @@ public class TabuSearch {
         List<Pair<Integer, Integer>> tabulist = new ArrayList<>();
         Pair<Integer, Integer> bestCandidate = null;
         long bestCandidateCrossings = objectiveFunction(graph);
+        long bestCandidateCrossingsWon = 0;
 
         while (!stoppingCondition(currentIterations, maxIterations)) {
             String group = decideGroup(currentIterations);
-            List<Pair<Integer, Integer>> neighbourhood = getNeighbours(graph, group);
+            List<Pair<Integer, Integer>> neighbourhood = getAllNeighbours(graph, group);
             bestCandidate = null;
+            bestCandidateCrossingsWon = Long.MIN_VALUE;
             for (Pair<Integer, Integer> candidate : neighbourhood) {
                 if (!tabulist.contains(candidate)) {
-                    graph.swap(candidate.first(), candidate.second(), group);
-                    if (graph.calculateTotalCrossings() <= bestCandidateCrossings) {
+                    // this method calculates the difference in crossings after swap and also performs the swap
+                    // is deze optimalisatie accuraat?
+                    long crossingsWon = graph.differenceCrossingsAfterSwap(candidate.first(), candidate.second(), group);
+                    if (crossingsWon > bestCandidateCrossingsWon) {
                         bestCandidate = candidate;
-                        bestCandidateCrossings = graph.calculateTotalCrossings();
+                        bestCandidateCrossingsWon = crossingsWon;
                     }
+                    // always undo the move, because we do the best move at the end
                     graph.swap(candidate.first(), candidate.second(), group);
                 }
             }
@@ -54,6 +59,8 @@ public class TabuSearch {
                 tabulist.removeFirst();
             }
 
+            // add the difference in crossings (we don't calculate completely again)
+            bestCandidateCrossings -= bestCandidateCrossingsWon;
             // update the best solution if needed
             if (bestCandidateCrossings < bestCrossings) {
                 bestA = graph.getHeightA();
@@ -100,7 +107,7 @@ public class TabuSearch {
         return maxIterations - currentIterations == 0;
     }
 
-    public static List<Pair<Integer, Integer>> getNeighbours(BipartiteGraph graph, String group) {
+    public static List<Pair<Integer, Integer>> getAllNeighbours(BipartiteGraph graph, String group) {
         List<Pair<Integer, Integer>> neighbours = new ArrayList<>();
         int firstIndex = graph.getFirstIndexOfGroup(group);
         int lastIndex = firstIndex + graph.getNumberOfVerticesInGroup(group);
@@ -111,6 +118,21 @@ public class TabuSearch {
                 }
             }
         }
+        return neighbours;
+    }
+
+    /**
+     * We definiëren een andere neighbourhood move waarbij we enkel kijken naar de echt 'buren'.
+     * Tabu werkt HEEL VEEL sneller maar veel SLECHTERE resultaten.
+     */
+    public static List<Pair<Integer, Integer>> getAdjacentNeighbours(BipartiteGraph graph, String group) {
+        List<Pair<Integer, Integer>> neighbours = new ArrayList<>();
+        int firstIndex = graph.getFirstIndexOfGroup(group);
+        int lastIndex = firstIndex + graph.getNumberOfVerticesInGroup(group);
+        for (int i = firstIndex; i < lastIndex-1; i++) {
+            neighbours.add(new Pair<>(i, i+1));
+        }
+        System.out.println(neighbours);
         return neighbours;
     }
 

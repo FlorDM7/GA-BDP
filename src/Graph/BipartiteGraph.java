@@ -52,8 +52,8 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     /**
      * Array van indexen die de volgorde bijhouden (beetje inefficient)
      */
-    public ArrayList<Integer> sequenceA = new ArrayList<>();
-    public ArrayList<Integer> sequenceB = new ArrayList<>();
+    public List<Integer> sequenceA = new ArrayList<>();
+    public List<Integer> sequenceB = new ArrayList<>();
 
     /**
      * Indexen die wijzen naar hoogte (kan ik constante tijd opgehaald worden)
@@ -158,8 +158,114 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         return k;
     }
 
-    public void differenceInCrossingsAfterSwap() {
-        // TODO op deze manier niet telkens total crossings opnieuw berekenen
+    /**
+     * Calculate the K value of a given (i,j) pair where i and j are in the same subset and i < j
+     * K(i,j) = #crossings that edges of i cause on edges of j
+     *
+     * This is for group B
+     */
+    private int calculateValueOfKInGroupB(int i, int j) {
+        // iedere keer opnieuw de index van een vertex zoeken
+        if (!(getHeightOfVertexB(i) >= getHeightOfVertexB(j))) {
+            return 0;
+        }
+        int k = 0;
+        List<Integer> neighboursOfI = getVerticesOf("B").get(i);
+        List<Integer> neighboursOfJ = getVerticesOf("B").get(j);
+        for (int neighbourOfI : neighboursOfI) {
+            for (int neighbourOfJ : neighboursOfJ) {
+                if (getHeightOfVertexA(neighbourOfI) < getHeightOfVertexA(neighbourOfJ)) {
+                    k++;
+                }
+            }
+        }
+        return k;
+    }
+
+    /**
+     * When we swap two nodes, not all crossings are impacted, we only need to calculate K(i,j).
+     * This way we don't have to calculate all crossings again after doing one swap.
+     *
+     * This is for group A
+     *
+     * @pre the height of i should be smaller than j
+     */
+    public long differenceCrossingsAfterSwapA(int i, int j) {
+        long before = 0;
+        List<Integer> sequence = heightToSequenceA(getHeightA());
+        int heightOfI = getHeightOfVertexA(i);
+        int heightOfJ = getHeightOfVertexA(j);
+        List<Integer> subsequence;
+        if (heightOfI < heightOfJ) {
+            subsequence = sequence.subList(sequence.indexOf(j), sequence.indexOf(i)+1);
+            int tmp = i;
+            i = j;
+            j = tmp;
+        } else {
+            subsequence = sequence.subList(sequence.indexOf(i), sequence.indexOf(j)+1);
+        }
+        for (int value : subsequence) {
+            before += calculateValueOfK(i, value);
+            before +=  calculateValueOfK(value, j);
+        }
+        before -= calculateValueOfK(i, j); // we do this dubbel
+
+        swapA(i,j);
+
+        long after = 0;
+        for (int value  : subsequence) {
+            after += calculateValueOfK(value, i);
+            after +=  calculateValueOfK(j, value);
+        }
+        after -= calculateValueOfK(j, i); // we do this dubbel
+        return before - after;
+    }
+
+    /**
+     * When we swap two nodes, not all crossings are impacted, we only need to calculate K(i,j).
+     * This way we don't have to calculate all crossings again after doing one swap.
+     *
+     * This is for group B
+     *
+     * @pre the height of i should be smaller than j
+     */
+    public long differenceCrossingsAfterSwapB(int i, int j) {
+        long before = 0;
+        List<Integer> sequence = heightToSequenceB(getHeightB());
+        int heightOfI = getHeightOfVertexB(i);
+        int heightOfJ = getHeightOfVertexB(j);
+        List<Integer> subsequence;
+        if (heightOfI < heightOfJ) {
+            subsequence = sequence.subList(sequence.indexOf(j), sequence.indexOf(i) + 1);
+            int tmp = i;
+            i = j;
+            j = tmp;
+        } else {
+            subsequence = sequence.subList(sequence.indexOf(i), sequence.indexOf(j) + 1);
+        }
+        for (int value : subsequence) {
+            before += calculateValueOfKInGroupB(i, value);
+            before +=  calculateValueOfKInGroupB(value, j);
+        }
+        before -= calculateValueOfKInGroupB(i, j); // we do this dubbel
+
+        swapB(i,j);
+
+        long after = 0;
+        for (int value  : subsequence) {
+            after += calculateValueOfKInGroupB(value, i);
+            after +=  calculateValueOfKInGroupB(j, value);
+        }
+        after -= calculateValueOfKInGroupB(j, i); // we do this dubbel
+        return before - after;
+    }
+
+    public long differenceCrossingsAfterSwap(int i, int j, String group) {
+        if (group.equals("A")) {
+            return differenceCrossingsAfterSwapA(i, j);
+        } else {
+            return differenceCrossingsAfterSwapB(i, j);
+        }
     }
 
     /**
@@ -186,7 +292,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         return null;
     }
 
-    public ArrayList<Integer> getSequenceOf(String group) {
+    public List<Integer> getSequenceOf(String group) {
         if (group.equals("A")) {
             return sequenceA;
         }
@@ -197,16 +303,16 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     }
 
     @Basic
-    public ArrayList<Integer> getSequenceA() {
+    public List<Integer> getSequenceA() {
         return sequenceA;
     }
 
     @Basic
-    public ArrayList<Integer> getSequenceB() {
+    public List<Integer> getSequenceB() {
         return sequenceB;
     }
 
-    public ArrayList<Integer> getSequenceOfGroup(String group) {
+    public List<Integer> getSequenceOfGroup(String group) {
         if (group.equals("A")) {
             return getSequenceA();
         } else {
@@ -215,12 +321,12 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     }
 
     @Basic
-    protected void setSequenceA(ArrayList<Integer> sequenceA) {
+    public void setSequenceA(List<Integer> sequenceA) {
         this.sequenceA = sequenceA;
     }
 
     @Basic
-    protected void setSequenceB(ArrayList<Integer> sequenceB) {
+    public void setSequenceB(List<Integer> sequenceB) {
         this.sequenceB = sequenceB;
     }
 

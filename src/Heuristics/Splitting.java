@@ -15,8 +15,8 @@ public class Splitting {
         long oldCrossings = graph.calculateTotalCrossings();
         long newCrossings = oldCrossings;
         long crossings = oldCrossings;
-        ArrayList<Integer> bestA = graph.getSequenceA();
-        ArrayList<Integer> bestB = graph.getSequenceB();
+        List<Integer> bestA = graph.getSequenceA();
+        List<Integer> bestB = graph.getSequenceB();
         while (improved) {
             // do splitting on both sides once
             splittingRecursive(graph, 0, graph.getNumberOfVerticesInGroup("A") - 1, "A");
@@ -93,33 +93,4 @@ public class Splitting {
             splittingRecursive(graph, mid+1, right, group);
         }
     }
-
-    /*
-    private static void splittingRecursiveB(BipartiteGraph graph, int left, int right) {
-        if (left < right) {
-            int mid = (left + right) / 2;
-            for (int vertex : graph.getVerticesOf("B").keySet()) {
-                long oldCrossings = graph.calculateTotalCrossings();
-                if (left <= graph.getHeightOfVertexB(vertex) && graph.getHeightOfVertexB(vertex) <= right) {
-                    int index = graph.getSequenceB().indexOf(vertex);
-                    if (graph.getHeightOfVertexB(vertex) > mid) {
-                        graph.swapB(index, mid - 1);
-                        long newCrossings = graph.calculateTotalCrossings();
-                        if (newCrossings >= oldCrossings) {
-                            graph.swapB(index, mid - 1);
-                        }
-                    } else if (graph.getHeightOfVertexB(vertex) < mid) {
-                        graph.swapB(index, mid + 1);
-                        long newCrossings = graph.calculateTotalCrossings();
-                        if (newCrossings >= oldCrossings) {
-                            graph.swapB(index, mid + 1);
-                        }
-                    }
-                }
-            }
-            splittingRecursiveB(graph, left, mid - 1);
-            splittingRecursiveB(graph, mid + 1, right);
-        }
-    }
-     */
 }
