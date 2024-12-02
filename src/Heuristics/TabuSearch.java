@@ -37,7 +37,6 @@ public class TabuSearch {
             for (Pair<Integer, Integer> candidate : neighbourhood) {
                 if (!tabulist.contains(candidate)) {
                     // this method calculates the difference in crossings after swap and also performs the swap
-                    // is deze optimalisatie accuraat?
                     long crossingsWon = graph.differenceCrossingsAfterSwap(candidate.first(), candidate.second(), group);
                     if (crossingsWon > bestCandidateCrossingsWon) {
                         bestCandidate = candidate;

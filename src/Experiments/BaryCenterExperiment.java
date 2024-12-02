@@ -18,7 +18,7 @@ public class BaryCenterExperiment {
         for (File file : files) {
             BipartiteGraph graph = Input.textToGraph(file);
             original += graph.calculateTotalCrossings();
-            average += graph.runMetaheuristicTest(10).getKey();
+            average += graph.runSecondHeuristic().getKey();
             j++;
             if (j % 100 == 0) {
                 float averageCrossings = (float) average / 100;

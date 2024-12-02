@@ -55,33 +55,34 @@ public class Splitting {
      */
     private static void splittingRecursive(BipartiteGraph graph, int left, int right, String group) {
         if (left < right) {
+            long difference = 0;
             int mid = (left + right) / 2;
             long oldCrossings = graph.calculateTotalCrossings();
-            List<Integer> sequence = graph.getSequenceOfGroup(group);
+            List<Integer> sequence = new ArrayList<Integer>(graph.getSequenceOfGroup(group));
             int midMinIndex = sequence.get(Math.max(mid-1,0));
             int midPlusIndex = sequence.get(Math.min(mid+1, sequence.size()-1));
             // go over elke knoop
-            for (int vertex : graph.getSequenceOfGroup(group)) {
+            for (int vertex : sequence) {
                 int heightOfVertex = graph.getHeightOfVertex(vertex);
                 // indien de knoop in het geselecteerde interval zit
                 if (left <= heightOfVertex && heightOfVertex <= right) {
                     // indien de knoop hoger is dan het midden
                     if (heightOfVertex > mid) {
-                        graph.swap(vertex, midMinIndex, group);
-                        long newCrossings = graph.calculateTotalCrossings();
-                        if (newCrossings >= oldCrossings) {
+                        // this method calculates the difference in crossings after swap and also performs the swap
+                        difference = graph.differenceCrossingsAfterSwap(vertex, midMinIndex, group);
+                        if (difference <= 0) {
                             graph.swap(vertex, midMinIndex, group); // undo swap
                         } else {
-                            oldCrossings = newCrossings; // improvement
+                            oldCrossings -= difference; // improvement
                             midMinIndex = sequence.get(Math.max(mid-1,1)); // there is now a new element at this spot
                         }
                     } else if (heightOfVertex < mid) { // indien de knoop lager is dan het midden
-                        graph.swap(vertex, midPlusIndex, group);
-                        long newCrossings = graph.calculateTotalCrossings();
-                        if (newCrossings >= oldCrossings) {
+                        // this method calculates the difference in crossings after swap and also performs the swap
+                        difference = graph.differenceCrossingsAfterSwap(vertex, midPlusIndex, group);
+                        if (difference <= 0) {
                             graph.swap(vertex, midPlusIndex, group); // undo swap
                         } else {
-                            oldCrossings = newCrossings; // improvement !!
+                            oldCrossings -= difference; // improvement !!
                             midPlusIndex = sequence.get(Math.min(mid+1, sequence.size()-1)); // there is now a new element on this spot
                         }
                     }

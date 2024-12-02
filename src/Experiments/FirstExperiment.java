@@ -41,7 +41,7 @@ public class FirstExperiment {
                 float averageCrossings = (float) average / 100;
                 original = original / 100;
                 long improvement = (long) ((1 -averageCrossings/original) * 100);
-                System.out.println("Average crossings with " + edges + " edges:\t" + averageCrossings + "\t(" + original + ")" + "\t(" + improvement + "%)");
+                System.out.println("Average crossings with " + edges + " edges and with 10 nodes:\t" + averageCrossings + "\t(" + original + ")" + "\t(" + improvement + "%)");
                 average = 0;
                 original = 0;
                 j = 0;

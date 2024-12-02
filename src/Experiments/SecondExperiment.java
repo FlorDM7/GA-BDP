@@ -17,12 +17,12 @@ public class SecondExperiment {
         runExperiment(files, BipartiteGraph::runFirstHeuristic);
 
         System.out.println();
-        System.out.println("-=-=-=-Splitting-=-=-=-");
-        runExperiment(files, BipartiteGraph::runSecondHeuristic);
-
-        System.out.println();
         System.out.println("-=-=-=-Tabu Search-=-=-=-");
         runExperiment(files,graph -> graph.runMetaheuristicTest(5));
+
+        System.out.println();
+        System.out.println("-=-=-=-Splitting-=-=-=-");
+        runExperiment(files, BipartiteGraph::runSecondHeuristic);
     }
 
     public static void runExperiment(File[] files, Function<BipartiteGraph, Map.Entry<Long, List>> heuristic) throws FileNotFoundException {
@@ -40,7 +40,7 @@ public class SecondExperiment {
                 float averageCrossings = (float) average / 100;
                 original = original / 100;
                 long improvement = (long) ((1 -averageCrossings/original) * 100);
-                System.out.println("Average crossings with " + edges + " edges:\t" + averageCrossings + "\t(" + original + ")" + "\t(" + improvement + "%)");
+                System.out.println("Average crossings with " + edges + " edges and with " + edges + " nodes:\t" + averageCrossings + "\t(" + original + ")" + "\t(" + improvement + "%)");
                 average = 0;
                 original = 0;
                 j = 0;
@@ -49,8 +49,9 @@ public class SecondExperiment {
         }
         long stopTime = System.currentTimeMillis();
         float elapsedTime = (float) (stopTime - startTime) / 1000;
+        float elapsedMinutes = (float) elapsedTime / 60;
         System.out.println("Elapsed time: " + elapsedTime + " s");
-        System.out.println("Elapsed time: " + elapsedTime / 60 + " min");
+        System.out.println("Elapsed time: " + elapsedMinutes + " min");
     }
 }
 

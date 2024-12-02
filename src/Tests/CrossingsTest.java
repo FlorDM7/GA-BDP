@@ -115,4 +115,25 @@ public class CrossingsTest {
         assertEquals(before, graph.calculateTotalCrossings());
     }
 
+    @Test
+    void test12() throws FileNotFoundException {
+        File file = new File("benchmarkset/extra_hard/2.gr");
+        BipartiteGraph graph = Input.textToGraph(file);
+        long before = graph.calculateTotalCrossings();
+
+        // we do a swap in group A
+        long difference = graph.differenceCrossingsAfterSwapA(8071,10153);
+        long after = graph.calculateTotalCrossings();
+        assertEquals(before - after, difference);
+        graph.swapA(8071,10153); // undo swap
+
+        // we do a swap in group B
+        difference = graph.differenceCrossingsAfterSwapB(13185,19344);
+        after = graph.calculateTotalCrossings();
+        assertEquals(before - after, difference);
+        graph.swapB(13185,19344); // undo swap
+
+        assertEquals(before, graph.calculateTotalCrossings());
+    }
+
 }
