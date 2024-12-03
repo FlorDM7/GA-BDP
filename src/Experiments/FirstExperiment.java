@@ -23,7 +23,7 @@ public class FirstExperiment {
 
         System.out.println();
         System.out.println("-=-=-=-Tabu Search-=-=-=-");
-        runExperiment(files,graph -> graph.runMetaheuristicTest(10));
+        runExperiment(files,graph -> graph.runMetaheuristicTest(50));
     }
 
     public static void runExperiment(File[] files, Function<BipartiteGraph, Map.Entry<Long, List>> heuristic) throws FileNotFoundException {

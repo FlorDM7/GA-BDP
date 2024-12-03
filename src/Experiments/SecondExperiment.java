@@ -18,7 +18,7 @@ public class SecondExperiment {
 
         System.out.println();
         System.out.println("-=-=-=-Tabu Search-=-=-=-");
-        runExperiment(files,graph -> graph.runMetaheuristicTest(5));
+        runExperiment(files,graph -> graph.runMetaheuristicTest(10));
 
         System.out.println();
         System.out.println("-=-=-=-Splitting-=-=-=-");

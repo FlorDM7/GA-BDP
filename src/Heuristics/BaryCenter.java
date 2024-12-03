@@ -10,6 +10,13 @@ import java.util.*;
  */
 public class BaryCenter {
 
+    /**
+     * Minimize the amount of crossings using the barycenter heuristic.
+     *
+     * @param   graph
+     *          The given graph.
+     * @return The minimal amount of crossings found along with a List that contains the solution.
+     */
     public static Map.Entry<Long, List> heuristic(BipartiteGraph graph) {
         boolean improved = true;
         long oldCrossings = graph.calculateTotalCrossings();
@@ -55,6 +62,13 @@ public class BaryCenter {
 
     /**
      * Calculate the barycenter value of a vertex.
+     *
+     * @param   graph
+     *          The given graph
+     * @param   vertex
+     *          The index of the vertex that belongs to group
+     * @param   group
+     *          A string, either "A" or "B"
      */
     public static long calculateBaryCenterValue(BipartiteGraph graph, int vertex, String group) {
         if (graph.getNeighborsOf(vertex).isEmpty()) {

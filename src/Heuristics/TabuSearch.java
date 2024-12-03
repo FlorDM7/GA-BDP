@@ -10,8 +10,28 @@ import java.util.*;
  */
 public class TabuSearch {
 
-    static final int maxTabuSize = 30;
+    /**
+     * The size of the tabu list, this is a default value.
+     */
+    static final int maxTabuSize = 20;
 
+    /**
+     * Minimize the amount of crossings using the tabu search meta-heuristic.
+     * We generate a series of moves and choose the best possible move. A move consist of
+     * swapping two vertices in a subset.
+     *
+     * Other parameters could be:
+     * - Range of neighbourhood: We consider more or less moves per iteration
+     * - Different initial solution
+     *
+     * @param   graph
+     *          The given graph.
+     * @param   maxIterations
+     *          The maximum amount of iterations that the algorithm will do.
+     * @param   tabuSize
+     *          The size of the tabu list, in which we stored prohibited moves.
+     * @return  The minimal amount of crossings found along with a List that contains the solution.
+     */
     public static Map.Entry<Long, List> heuristic(BipartiteGraph graph, int maxIterations, int tabuSize) {
         // choose an initial solution
         Map.Entry<Long, List> initial = initializeSolution(graph);
@@ -29,11 +49,20 @@ public class TabuSearch {
         long bestCandidateCrossings = objectiveFunction(graph);
         long bestCandidateCrossingsWon = 0;
 
+        // we calculate the neighbourhood OUTSIDE the loop, otherwise this is a big bottleneck
+        List<Pair<Integer, Integer>> neighbourhoodA = getAllNeighbours(graph, "A");
+        List<Pair<Integer, Integer>> neighbourhoodB = getAllNeighbours(graph, "B");
+        List<Pair<Integer, Integer>> neighbourhood;
+
         while (!stoppingCondition(currentIterations, maxIterations)) {
             String group = decideGroup(currentIterations);
-            List<Pair<Integer, Integer>> neighbourhood = getAllNeighbours(graph, group);
             bestCandidate = null;
             bestCandidateCrossingsWon = Long.MIN_VALUE;
+            if (group.equals("A")) {
+                neighbourhood = neighbourhoodA;
+            } else {
+                neighbourhood = neighbourhoodB;
+            }
             for (Pair<Integer, Integer> candidate : neighbourhood) {
                 if (!tabulist.contains(candidate)) {
                     // this method calculates the difference in crossings after swap and also performs the swap
@@ -111,10 +140,28 @@ public class TabuSearch {
         int firstIndex = graph.getFirstIndexOfGroup(group);
         int lastIndex = firstIndex + graph.getNumberOfVerticesInGroup(group);
         for (int i = firstIndex; i < lastIndex; i++) {
-            for (int j = firstIndex; j < lastIndex; j++) {
-                if (i != j) {
-                    neighbours.add(new Pair<>(i, j));
-                }
+            for (int j = i+1; j < lastIndex; j++) {
+                neighbours.add(new Pair<>(i, j));
+            }
+        }
+        return neighbours;
+    }
+
+    /**
+     * We definiëren een andere neighbourhood move waarbij we enkel kijken
+     * naar de knopen op een bepaalde afstand van degene waarmee we swappen.
+     */
+    public static List<Pair<Integer, Integer>> getNeighboursInSpecificRange(BipartiteGraph graph, int range, String group) {
+        List<Pair<Integer, Integer>> neighbours = new ArrayList<>();
+        if (range == 0) {
+            return neighbours;
+        }
+        int firstIndex = graph.getFirstIndexOfGroup(group);
+        int lastIndex = firstIndex + graph.getNumberOfVerticesInGroup(group);
+        for (int i = firstIndex; i < lastIndex-1; i++) {
+            int limit = firstIndex + range;
+            for (int j = i+1; j < limit; j++) {
+                neighbours.add(new Pair<>(i, j));
             }
         }
         return neighbours;
@@ -131,7 +178,6 @@ public class TabuSearch {
         for (int i = firstIndex; i < lastIndex-1; i++) {
             neighbours.add(new Pair<>(i, i+1));
         }
-        System.out.println(neighbours);
         return neighbours;
     }
 

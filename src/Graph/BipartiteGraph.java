@@ -5,23 +5,15 @@ import Heuristics.Splitting;
 import Heuristics.TabuSearch;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
-import java.io.File;
-import java.io.FileNotFoundException;
+
 import java.util.*;
 
 /**
  * This class implements the BipartiteGraphInterface.
- * This class represents a bipartite graph with 2 groups of vertices.
+ * This class represents a bipartite graph with 2 disjoint sets of vertices.
  * @author Flor De Meulemeester
  */
 public class BipartiteGraph implements BipartiteGraphInterface {
-
-    public static void main(String args[]) throws FileNotFoundException {
-        File file = new File("splitting.txt");
-        BipartiteGraph graph = Input.textToGraph(file);
-        System.out.println("Before: " + graph.calculateTotalCrossings());
-        System.out.println("After: " + graph.runSecondHeuristic());
-    }
 
     /**
      * The number of vertices in the graph, this is initialized in the constructor.
@@ -44,35 +36,44 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     final int numberOfEdges;
 
     /**
-     * Indexen en dan de indexen van de buren
+     * verticesA and verticesB map the indexes of the vertices in their group
+     * to a list of the indexes of their direct neighbours in the other group.
+     *  Example:
+     *  1 is element of A and has edges to 3 and 4 that are element of B.
+     *  In verticesA we put: (1,{3,4})
+     *  In verticesB we put: (3,{1,...}) and (4,{1,...})
      */
     private HashMap<Integer, ArrayList<Integer>> verticesA = new HashMap<>();
     private HashMap<Integer, ArrayList<Integer>> verticesB = new HashMap<>();
 
     /**
-     * Array van indexen die de volgorde bijhouden (beetje inefficient)
+     * Sequence is an array that sorts the indexes of vertices in the group based on their height currently in the graph.
+     * We use this in the BaryCenter heuristic when we permute the indexes.
      */
     public List<Integer> sequenceA = new ArrayList<>();
     public List<Integer> sequenceB = new ArrayList<>();
 
     /**
-     * Indexen die wijzen naar hoogte (kan ik constante tijd opgehaald worden)
+     * Height is a HashMap for each group that maps the indexes on their height.
+     * We use this for calculating the total amount of crossings in a graph.
      */
     public HashMap<Integer, Integer> heightA = new HashMap<>();
     public HashMap<Integer, Integer> heightB = new HashMap<>();
+
+    // CONSTRUCTOR
 
     /**
      * Constructor for creating a bipartite graph.
      * This is used when we read a graph from an input text file.
      *
      * @param   numberOfVertices
-     *          The number of vertices in the graph
+     *          The number of vertices in the graph.
      * @param   a
-     *          The number of vertices in the subset A
+     *          The number of vertices in the subset A.
      * @param   b
-     *          The number of vertices in the subset B
+     *          The number of vertices in the subset B.
      * @param   numberOfEdges
-     *          The number of edges in the graph
+     *          The number of edges in the graph.
      */
     protected BipartiteGraph(int numberOfVertices, int a, int b, int numberOfEdges) {
         this.numberOfVertices = numberOfVertices;
@@ -84,7 +85,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
 
     /**
      * This method initializes the indices of the vertices in the graph.
-     * Only used for the creation the graph.
+     * This method is only used in the constructor.
      */
     private void initializeVertices(int b) {
         int i = 1;
@@ -107,41 +108,30 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      * When reading the input we use this method to add the connections between the vertices.
      */
     protected void addEdge(int a, int b) {
-        // voeg toe aan hashmap A
-        verticesA.get(a).add(b);
-        // voeg toe aan hashmap B
-        verticesB.get(b).add(a);
-    }
-
-    protected void sortInput() {
-        Collections.sort(sequenceA);
-        Collections.sort(sequenceB);
-    }
-
-    @Immutable
-    public int getFirstIndexOfA() {
-        return 1;
-    }
-
-    @Immutable
-    public int getFirstIndexOfB() {
-        return getNumberOfVertices() - verticesB.size() + 1;
-    }
-
-    public int getFirstIndexOfGroup(String group) {
-        if (group.equals("A")) {
-            return getFirstIndexOfA();
-        } else {
-            return getFirstIndexOfB();
-        }
+        verticesA.get(a).add(b); // add index b to the neighbours of a
+        verticesB.get(b).add(a); // vice versa
     }
 
     /**
-     * Calculate the K value of a given (i,j) pair where i and j are in the same subset and i < j
-     * K(i,j) = #crossings that edges of i cause on edges of j
+     * We also sort the indexes when reading the input.
+     * So we can better predict where vertices are during testing and debugging.
      */
-    public int calculateValueOfK(int i, int j) {
-        // iedere keer opnieuw de index van een vertex zoeken
+    protected void sortInput() {
+        Collections.sort(sequenceA);
+        Collections.sort(sequenceB);
+        sequenceToHeightA(sequenceA);
+        sequenceToHeightB(sequenceB);
+    }
+
+    // CALCULATE CROSSINGS
+
+    /**
+     * Calculate the K value of a given (i,j) pair where i and j are in subset A
+     * K(i,j) = #crossings that edges of i cause on edges of j
+     *
+     * @pre i and j should be elements of A
+     */
+    public int calculateValueOfKInGroupA(int i, int j) {
         if (!(getHeightOfVertexA(i) > getHeightOfVertexA(j))) {
             return 0;
         }
@@ -159,10 +149,10 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     }
 
     /**
-     * Calculate the K value of a given (i,j) pair where i and j are in the same subset and i < j
+     * Calculate the K value of a given (i,j) pair where i and j are in subset B
      * K(i,j) = #crossings that edges of i cause on edges of j
      *
-     * This is for group B
+     * @pre i and j should be elements of B
      */
     private int calculateValueOfKInGroupB(int i, int j) {
         // iedere keer opnieuw de index van een vertex zoeken
@@ -183,71 +173,65 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     }
 
     /**
-     * When we swap two nodes, not all crossings are impacted, we only need to calculate K(i,j).
-     * This way we don't have to calculate all crossings again after doing one swap.
+     * When we swap two nodes, not all crossings are impacted, we only need to calculate the K-values
+     * of vertices i, i+1, ..., j-1, j. This way we don't have to calculate all crossings again after
+     * doing one swap.
      *
-     * This is for group A
-     *
-     * @pre the height of i should be smaller than j
+     * @pre i and j should be elements of A
      */
     public long differenceCrossingsAfterSwapA(int i, int j) {
         long before = 0;
-        List<Integer> sequence = heightToSequenceA(getHeightA());
+        List<Integer> sequence = heightToSequenceA(getHeightA()); // TODO maybe this is to much
         int heightOfI = getHeightOfVertexA(i);
         int heightOfJ = getHeightOfVertexA(j);
-        List<Integer> subsequence;
+        // my implementation of K(i,j) only works when h(i) > h(j) so if not we swap i and j
         if (heightOfI < heightOfJ) {
-            subsequence = sequence.subList(sequence.indexOf(j), sequence.indexOf(i)+1);
             int tmp = i;
             i = j;
             j = tmp;
-        } else {
-            subsequence = sequence.subList(sequence.indexOf(i), sequence.indexOf(j)+1);
         }
+        List<Integer> subsequence = sequence.subList(sequence.indexOf(i), sequence.indexOf(j)+1);
         for (int value : subsequence) {
-            before += calculateValueOfK(i, value);
-            before +=  calculateValueOfK(value, j);
+            before += calculateValueOfKInGroupA(i, value);
+            before +=  calculateValueOfKInGroupA(value, j);
         }
-        before -= calculateValueOfK(i, j); // we do this dubbel
+        before -= calculateValueOfKInGroupA(i, j); // we calculated this twice
 
         swapA(i,j);
 
         long after = 0;
         for (int value  : subsequence) {
-            after += calculateValueOfK(value, i);
-            after +=  calculateValueOfK(j, value);
+            after += calculateValueOfKInGroupA(value, i);
+            after +=  calculateValueOfKInGroupA(j, value);
         }
-        after -= calculateValueOfK(j, i); // we do this dubbel
+        after -= calculateValueOfKInGroupA(j, i); // we calculated this twice
         return before - after;
     }
 
     /**
-     * When we swap two nodes, not all crossings are impacted, we only need to calculate K(i,j).
-     * This way we don't have to calculate all crossings again after doing one swap.
+     * When we swap two nodes, not all crossings are impacted, we only need to calculate the K-values
+     * of vertices i, i+1, ..., j-1, j. This way we don't have to calculate all crossings again after
+     * doing one swap.
      *
-     * This is for group B
-     *
-     * @pre the height of i should be smaller than j
+     * @pre i and j should be elements of B
      */
     public long differenceCrossingsAfterSwapB(int i, int j) {
         long before = 0;
-        List<Integer> sequence = heightToSequenceB(getHeightB());
+        List<Integer> sequence = heightToSequenceB(getHeightB()); // TODO maybe this is too much
         int heightOfI = getHeightOfVertexB(i);
         int heightOfJ = getHeightOfVertexB(j);
-        List<Integer> subsequence;
+        // my implementation of K(i,j) only works when h(i) > h(j) so if not we swap i and j
         if (heightOfI < heightOfJ) {
-            subsequence = sequence.subList(sequence.indexOf(j), sequence.indexOf(i) + 1);
             int tmp = i;
             i = j;
             j = tmp;
-        } else {
-            subsequence = sequence.subList(sequence.indexOf(i), sequence.indexOf(j) + 1);
         }
+        List<Integer> subsequence = sequence.subList(sequence.indexOf(i), sequence.indexOf(j) + 1);
         for (int value : subsequence) {
             before += calculateValueOfKInGroupB(i, value);
             before +=  calculateValueOfKInGroupB(value, j);
         }
-        before -= calculateValueOfKInGroupB(i, j); // we do this dubbel
+        before -= calculateValueOfKInGroupB(i, j); // we calculated this twice
 
         swapB(i,j);
 
@@ -256,10 +240,20 @@ public class BipartiteGraph implements BipartiteGraphInterface {
             after += calculateValueOfKInGroupB(value, i);
             after +=  calculateValueOfKInGroupB(j, value);
         }
-        after -= calculateValueOfKInGroupB(j, i); // we do this dubbel
+        after -= calculateValueOfKInGroupB(j, i); // we calculated this twice
         return before - after;
     }
 
+    /**
+     * Execute the methods above depending on the group.
+     *
+     * @param   i
+     *          The index of the first vertex
+     * @param   j
+     *          The index of the second vertex
+     * @param   group
+     *          A string, this is either "A" or "B"
+     */
     public long differenceCrossingsAfterSwap(int i, int j, String group) {
         if (group.equals("A")) {
             return differenceCrossingsAfterSwapA(i, j);
@@ -275,13 +269,21 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         long crossings = 0;
         for (int i=1; i < getFirstIndexOfB(); i++) {
             for (int j=1; j < getFirstIndexOfB(); j++) {
-                crossings += calculateValueOfK(i, j);
+                crossings += calculateValueOfKInGroupA(i, j);
             }
         }
         return crossings;
     }
 
+    // VERTICES
 
+    /**
+     * Return a hashmap containing indexes that map to the indexes of the neighbours.
+     *
+     * @param   group
+     *          A string, this is either "A" or "B"
+     * @return  Either verticesA or verticesB
+     */
     public HashMap<Integer, ArrayList<Integer>> getVerticesOf(String group) {
         if (group.equals("A")) {
             return verticesA;
@@ -291,6 +293,21 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         }
         return null;
     }
+
+    /**
+     * @param   group
+     *          A string, this is either "A" or "B"
+     * @return  The amount of vertices in group
+     */
+    public int getNumberOfVerticesInGroup(String group) {
+        if (group.equals("A")) {
+            return numberOfVerticesInA;
+        } else {
+            return numberOfVerticesInB;
+        }
+    }
+
+    // SEQUENCE
 
     public List<Integer> getSequenceOf(String group) {
         if (group.equals("A")) {
@@ -312,23 +329,17 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         return sequenceB;
     }
 
-    public List<Integer> getSequenceOfGroup(String group) {
-        if (group.equals("A")) {
-            return getSequenceA();
-        } else {
-            return getSequenceB();
-        }
+    public List<Integer> heightToSequenceA(HashMap<Integer, Integer> height) {
+        sequenceA.sort(Collections.reverseOrder(Comparator.comparing(height::get)));
+        return sequenceA;
     }
 
-    @Basic
-    public void setSequenceA(List<Integer> sequenceA) {
-        this.sequenceA = sequenceA;
+    public List<Integer> heightToSequenceB(HashMap<Integer, Integer> height) {
+        sequenceB.sort(Collections.reverseOrder(Comparator.comparing(height::get)));
+        return sequenceB;
     }
 
-    @Basic
-    public void setSequenceB(List<Integer> sequenceB) {
-        this.sequenceB = sequenceB;
-    }
+    // SWAP
 
     public void swapA(int index1, int index2) {
         // Collections.swap(getSequenceA(), index1, index2);
@@ -354,10 +365,13 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         }
     }
 
+    // HEIGHT
+
     /**
      * Return the height of the vertex based on the y-axis.
      * We assume that the graph is represented as two vertical lines on x=0 and x=1,
      * so that the nodes are places on those lines respectively.
+     * @pre     vertex should be an element of either A or B
      */
     public int getHeightOfVertex(int vertex) {
         if (vertex < getFirstIndexOfB()) {
@@ -367,10 +381,22 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         }
     }
 
+    /**
+     * @param   vertex
+     *          The index of the vertex
+     * @pre     Vertex should be an element of A
+     * @return  The height of the vertex
+     */
     public int getHeightOfVertexA(int vertex) {
         return heightA.get(vertex);
     }
 
+    /**
+     * @param   vertex
+     *          The index of the vertex
+     * @pre     Vertex should be an element of B
+     * @return  The height of the vertex
+     */
     public int getHeightOfVertexB(int vertex) {
         return heightB.get(vertex);
     }
@@ -401,16 +427,6 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         }
     }
 
-    public List<Integer> heightToSequenceA(HashMap<Integer, Integer> height) {
-        sequenceA.sort(Collections.reverseOrder(Comparator.comparing(height::get)));
-        return sequenceA;
-    }
-
-    public List<Integer> heightToSequenceB(HashMap<Integer, Integer> height) {
-        sequenceB.sort(Collections.reverseOrder(Comparator.comparing(height::get)));
-        return sequenceB;
-    }
-
     public HashMap<Integer,Integer> sequenceToHeightA(List<Integer> sequence) {
         for (int i = 0; i < sequence.size(); i++) {
             int index = sequence.get(i);
@@ -427,17 +443,30 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         return heightB;
     }
 
-    public int getNumberOfVerticesInGroup(String group) {
+    // HELP METHODS
+
+    @Immutable
+    public int getFirstIndexOfA() {
+        return 1;
+    }
+
+    @Immutable
+    public int getFirstIndexOfB() {
+        return getNumberOfVertices() - verticesB.size() + 1;
+    }
+
+    public int getFirstIndexOfGroup(String group) {
         if (group.equals("A")) {
-            return numberOfVerticesInA;
+            return getFirstIndexOfA();
         } else {
-            return numberOfVerticesInB;
+            return getFirstIndexOfB();
         }
     }
 
+    // INTERFACE
+
     /**
-     * Returns a collection of objects representing the vertices of the graph.
-     * Currently, these are just integers but should be objects
+     * Returns a collection of integers representing the vertices of the graph.
      */
     @Override
     public Collection getVertices() {

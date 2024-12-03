@@ -10,6 +10,15 @@ import java.util.*;
  */
 public class Splitting {
 
+    /**
+     * Minimize the amount of crossings using the splitting heuristic. In one iteration we do each group once:
+     * We choose the middle element and for each other element we check if it is better above or under the middle
+     * and keep the best one. Then we split in two groups and go on.
+     *
+     * @param   graph
+     *          The given graph.
+     * @return The minimal amount of crossings found along with a List that contains the solution.
+     */
     public static Map.Entry<Long, List> heuristic(BipartiteGraph graph) {
         boolean improved = true;
         long oldCrossings = graph.calculateTotalCrossings();
@@ -19,8 +28,8 @@ public class Splitting {
         List<Integer> bestB = graph.getSequenceB();
         while (improved) {
             // do splitting on both sides once
-            splittingRecursive(graph, 0, graph.getNumberOfVerticesInGroup("A") - 1, "A");
-            splittingRecursive(graph, 0, graph.getNumberOfVerticesInGroup("B") - 1, "B");
+            splittingRecursive(graph, 0, graph.getNumberOfVerticesInGroup("A") - 1, "A", oldCrossings);
+            splittingRecursive(graph, 0, graph.getNumberOfVerticesInGroup("B") - 1, "B", oldCrossings);
 
             // check if we improved
             newCrossings = graph.calculateTotalCrossings();
@@ -45,20 +54,21 @@ public class Splitting {
      * Recursief dingen rond het midden wisselen of zo
      *
      * @param   graph
-     *          De graaf
+     *          De given graph
      * @param   left
-     *          Hoogste van het meest linkse element
+     *          Index in the sequence (not of the vertex) of the most left element
      * @param   right
-     *          Hoogte van het meeste rechtse element
+     *          Index in the sequence (not of the vertex) of the most right element
+     * @param   crossings
+     *          This way we don't need to calculate the crossings every recursion
      * @param   group
-     *          A of B
+     *          A string, either "A" of "B"
      */
-    private static void splittingRecursive(BipartiteGraph graph, int left, int right, String group) {
+    private static void splittingRecursive(BipartiteGraph graph, int left, int right, String group, long crossings) {
         if (left < right) {
             long difference = 0;
             int mid = (left + right) / 2;
-            long oldCrossings = graph.calculateTotalCrossings();
-            List<Integer> sequence = new ArrayList<Integer>(graph.getSequenceOfGroup(group));
+            List<Integer> sequence = new ArrayList<Integer>(graph.getSequenceOf(group));
             int midMinIndex = sequence.get(Math.max(mid-1,0));
             int midPlusIndex = sequence.get(Math.min(mid+1, sequence.size()-1));
             // go over elke knoop
@@ -73,7 +83,7 @@ public class Splitting {
                         if (difference <= 0) {
                             graph.swap(vertex, midMinIndex, group); // undo swap
                         } else {
-                            oldCrossings -= difference; // improvement
+                            crossings -= difference; // improvement
                             midMinIndex = sequence.get(Math.max(mid-1,1)); // there is now a new element at this spot
                         }
                     } else if (heightOfVertex < mid) { // indien de knoop lager is dan het midden
@@ -82,7 +92,7 @@ public class Splitting {
                         if (difference <= 0) {
                             graph.swap(vertex, midPlusIndex, group); // undo swap
                         } else {
-                            oldCrossings -= difference; // improvement !!
+                            crossings -= difference; // improvement !!
                             midPlusIndex = sequence.get(Math.min(mid+1, sequence.size()-1)); // there is now a new element on this spot
                         }
                     }
@@ -90,8 +100,8 @@ public class Splitting {
             }
             graph.heightToSequenceGroup(graph.getHeightOfGroup(group), group);
             // recursion
-            splittingRecursive(graph, left, mid-1, group);
-            splittingRecursive(graph, mid+1, right, group);
+            splittingRecursive(graph, left, mid-1, group, crossings);
+            splittingRecursive(graph, mid+1, right, group, crossings);
         }
     }
 }
