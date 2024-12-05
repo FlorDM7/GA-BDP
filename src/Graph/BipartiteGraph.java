@@ -309,7 +309,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
 
     // SEQUENCE
 
-    public List<Integer> getSequenceOf(String group) {
+    public List<Integer>  getSequenceOf(String group) {
         if (group.equals("A")) {
             return sequenceA;
         }
@@ -329,20 +329,33 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         return sequenceB;
     }
 
+    /**
+     * We sort the indicies of group A based on the possibly new heights in the height variable.
+     */
     public List<Integer> heightToSequenceA(HashMap<Integer, Integer> height) {
         sequenceA.sort(Collections.reverseOrder(Comparator.comparing(height::get)));
         return sequenceA;
     }
 
+    /**
+     * We sort the indicies of group B based on the possibly new heights in the height variable.
+     */
     public List<Integer> heightToSequenceB(HashMap<Integer, Integer> height) {
         sequenceB.sort(Collections.reverseOrder(Comparator.comparing(height::get)));
         return sequenceB;
     }
 
+    public void heightToSequenceGroup(HashMap<Integer, Integer> height, String group) {
+        if (group.equals("A")) {
+            heightToSequenceA(height);
+        } else {
+            heightToSequenceB(height);
+        }
+    }
+
     // SWAP
 
     public void swapA(int index1, int index2) {
-        // Collections.swap(getSequenceA(), index1, index2);
         int h1 = heightA.get(index1);
         int h2 = heightA.get(index2);
         heightA.put(index1, h2);
@@ -350,7 +363,6 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     }
 
     public void swapB(int index1, int index2) {
-        // Collections.swap(getSequenceB(), index1, index2);
         int h1 = heightB.get(index1);
         int h2 = heightB.get(index2);
         heightB.put(index1, h2);
@@ -419,14 +431,9 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         }
     }
 
-    public List<Integer> heightToSequenceGroup(HashMap<Integer, Integer> height, String group) {
-        if (group.equals("A")) {
-            return heightToSequenceA(height);
-        } else {
-            return heightToSequenceB(height);
-        }
-    }
-
+    /**
+     * Based on a sequence of indices from group A, we update the values in the height mapping.
+     */
     public HashMap<Integer,Integer> sequenceToHeightA(List<Integer> sequence) {
         for (int i = 0; i < sequence.size(); i++) {
             int index = sequence.get(i);
@@ -435,6 +442,9 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         return heightA;
     }
 
+    /**
+     * Based on a sequence of indices from group B, we update the values in the height mapping.
+     */
     public HashMap<Integer,Integer> sequenceToHeightB(List<Integer> sequence) {
         for (int i = 0; i < sequence.size(); i++) {
             int index = sequence.get(i);

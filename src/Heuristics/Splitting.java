@@ -43,9 +43,11 @@ public class Splitting {
             oldCrossings = newCrossings;
         }
         // get the correct output format
+        graph.sequenceToHeightA(bestA);
+        graph.sequenceToHeightB(bestB);
         crossings = graph.calculateTotalCrossings();
-        List<Integer> list = new ArrayList<>(graph.getSequenceA());
-        list.addAll(graph.getSequenceB());
+        List<Integer> list = new ArrayList<>(bestA);
+        list.addAll(bestB);
         Map.Entry<Long, List> result = new AbstractMap.SimpleEntry<>(crossings, list);
         return result;
     }
@@ -54,15 +56,15 @@ public class Splitting {
      * Recursief dingen rond het midden wisselen of zo
      *
      * @param   graph
-     *          De given graph
+     *          The given graph.
      * @param   left
-     *          Index in the sequence (not of the vertex) of the most left element
+     *          Index in the sequence (not of the vertex) of the most left element.
      * @param   right
-     *          Index in the sequence (not of the vertex) of the most right element
+     *          Index in the sequence (not of the vertex) of the most right element.
      * @param   crossings
-     *          This way we don't need to calculate the crossings every recursion
+     *          This way we don't need to calculate the crossings every recursion.
      * @param   group
-     *          A string, either "A" of "B"
+     *          A string, either "A" of "B".
      */
     private static void splittingRecursive(BipartiteGraph graph, int left, int right, String group, long crossings) {
         if (left < right) {

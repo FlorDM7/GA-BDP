@@ -33,7 +33,7 @@ public class SplittingTest {
 
     @Test
     void test3() throws FileNotFoundException {
-        File file = new File("test.txt");
+        File file = new File("benchmarkset/test.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
         long newCrossings = graph.runSecondHeuristic().getKey();
@@ -66,7 +66,7 @@ public class SplittingTest {
 
     @Test
     void test6() throws FileNotFoundException {
-        File file = new File("barycenter.txt");
+        File file = new File("benchmarkset/barycenter.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
         long newCrossings = graph.runSecondHeuristic().getKey();

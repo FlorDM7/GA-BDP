@@ -22,14 +22,17 @@ public class FirstExperiment {
         runExperiment(files, BipartiteGraph::runSecondHeuristic);
 
         System.out.println();
-        System.out.println("-=-=-=-Tabu Search-=-=-=-");
-        runExperiment(files,graph -> graph.runMetaheuristicTest(50));
+        int iterations = 2000;
+        int tabusize = 15;
+        System.out.println("-=-=-=-Tabu Search met " + iterations + " iteraties-=-=-=-");
+        runExperiment(files,graph -> graph.runMetaheuristicTest(iterations));
     }
 
     public static void runExperiment(File[] files, Function<BipartiteGraph, Map.Entry<Long, List>> heuristic) throws FileNotFoundException {
         int edges = 10;
         int j = 0;
-        int average = 0;
+        long average = 0;
+        long total = 0;
         long original = 0;
         long startTime = System.currentTimeMillis();
         for (File file : files) {
@@ -38,9 +41,10 @@ public class FirstExperiment {
             average += heuristic.apply(graph).getKey();
             j++;
             if (j % 100 == 0) {
-                float averageCrossings = (float) average / 100;
+                total += average;
+                double averageCrossings = (double) average / 100;
                 original = original / 100;
-                long improvement = (long) ((1 -averageCrossings/original) * 100);
+                long improvement = (long) ((1 - averageCrossings/original) * 100);
                 System.out.println("Average crossings with " + edges + " edges and with 10 nodes:\t" + averageCrossings + "\t(" + original + ")" + "\t(" + improvement + "%)");
                 average = 0;
                 original = 0;
@@ -50,6 +54,7 @@ public class FirstExperiment {
         }
         long stopTime = System.currentTimeMillis();
         float elapsedTime = (float) (stopTime - startTime) / 1000;
+        System.out.println("Average: " + (float) total / 1000);
         System.out.println("Elapsed time: " + elapsedTime + " s");
         System.out.println("Elapsed time: " + elapsedTime / 60 + " min");
     }

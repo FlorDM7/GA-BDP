@@ -24,9 +24,10 @@ public class BaryCenter {
         long crossings = oldCrossings;
         HashMap<Integer, Integer> bestA = graph.getHeightA();
         HashMap<Integer, Integer> bestB = graph.getHeightB();
+        HashMap<Integer, Long> verticesA = new HashMap<>();
+        HashMap<Integer, Long> verticesB = new HashMap<>();
         while (improved) {
             // first we permute the vertices in A and we lock B
-            HashMap<Integer, Long> verticesA = new HashMap<>();
             for (int vertex : graph.getSequenceA()) {
                 verticesA.put(vertex, BaryCenter.calculateBaryCenterValue(graph, vertex, "A"));
             }
@@ -34,7 +35,6 @@ public class BaryCenter {
             graph.sequenceToHeightA(graph.getSequenceA());
 
             // then we permute the vertices in B and we lock A
-            HashMap<Integer, Long> verticesB = new HashMap<>();
             for (int vertex : graph.getSequenceB()) {
                 verticesB.put(vertex, BaryCenter.calculateBaryCenterValue(graph, vertex, "B"));
             }

@@ -13,7 +13,7 @@ public class TabuSearch {
     /**
      * The size of the tabu list, this is a default value.
      */
-    static final int maxTabuSize = 20;
+    static final int maxTabuSize = 15;
 
     /**
      * Minimize the amount of crossings using the tabu search meta-heuristic.
@@ -50,8 +50,8 @@ public class TabuSearch {
         long bestCandidateCrossingsWon = 0;
 
         // we calculate the neighbourhood OUTSIDE the loop, otherwise this is a big bottleneck
-        List<Pair<Integer, Integer>> neighbourhoodA = getAllNeighbours(graph, "A");
-        List<Pair<Integer, Integer>> neighbourhoodB = getAllNeighbours(graph, "B");
+        List<Pair<Integer, Integer>> neighbourhoodA = getAdjacentNeighbours(graph, "A");
+        List<Pair<Integer, Integer>> neighbourhoodB = getAdjacentNeighbours(graph, "B");
         List<Pair<Integer, Integer>> neighbourhood;
 
         while (!stoppingCondition(currentIterations, maxIterations)) {
@@ -149,7 +149,7 @@ public class TabuSearch {
 
     /**
      * We definiëren een andere neighbourhood move waarbij we enkel kijken
-     * naar de knopen op een bepaalde afstand van degene waarmee we swappen.
+     * naar de knopen op een bepaalde afstand van elkaar.
      */
     public static List<Pair<Integer, Integer>> getNeighboursInSpecificRange(BipartiteGraph graph, int range, String group) {
         List<Pair<Integer, Integer>> neighbours = new ArrayList<>();
@@ -168,8 +168,7 @@ public class TabuSearch {
     }
 
     /**
-     * We definiëren een andere neighbourhood move waarbij we enkel kijken naar de echt 'buren'.
-     * Tabu werkt HEEL VEEL sneller maar veel SLECHTERE resultaten.
+     * We definiëren een andere neighbourhood move waarbij we enkel kijken naar de echte 'buren'.
      */
     public static List<Pair<Integer, Integer>> getAdjacentNeighbours(BipartiteGraph graph, String group) {
         List<Pair<Integer, Integer>> neighbours = new ArrayList<>();

@@ -14,7 +14,7 @@ public class BipartiteGraphTest {
 
     @Test
     void test1() throws FileNotFoundException {
-        File file = new File("test.txt");
+        File file = new File("benchmarkset/test.txt");
         BipartiteGraph graph = Input.textToGraph(file);
 
         // test input sequence A
@@ -52,7 +52,7 @@ public class BipartiteGraphTest {
 
     @Test
     void test2() throws FileNotFoundException {
-        File file = new File("splitting.txt");
+        File file = new File("benchmarkset/splitting.txt");
         BipartiteGraph graph = Input.textToGraph(file);
 
         // test input sequence A

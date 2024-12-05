@@ -33,7 +33,7 @@ public class BaryCenterTest {
 
     @Test
     void test3() throws FileNotFoundException {
-        File file = new File("test.txt");
+        File file = new File("benchmarkset/test.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
         long newCrossings = graph.runFirstHeuristic().getKey();
@@ -66,7 +66,7 @@ public class BaryCenterTest {
 
     @Test
     void test6() throws FileNotFoundException {
-        File file = new File("barycenter.txt");
+        File file = new File("benchmarkset/barycenter.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
         long newCrossings = graph.runFirstHeuristic().getKey();
@@ -88,7 +88,7 @@ public class BaryCenterTest {
 
     @Test
     void test8() throws FileNotFoundException {
-        File file = new File("benchmarkset/extra_easy/1.gr");
+        File file = new File("benchmarkset/extra_easy/5.gr");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
         long newCrossings = graph.runFirstHeuristic().getKey();

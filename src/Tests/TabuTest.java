@@ -35,7 +35,7 @@ public class TabuTest {
 
     @Test
     void test3() throws FileNotFoundException {
-        File file = new File("test.txt");
+        File file = new File("benchmarkset/test.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
         long newCrossings = graph.runMetaheuristicTest(iterations).getKey();
@@ -68,7 +68,7 @@ public class TabuTest {
 
     @Test
     void test6() throws FileNotFoundException {
-        File file = new File("barycenter.txt");
+        File file = new File("benchmarkset/barycenter.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
         long newCrossings = graph.runMetaheuristicTest(iterations).getKey();
@@ -93,7 +93,7 @@ public class TabuTest {
         File file = new File("benchmarkset/extra_easy/1.gr");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
-        long newCrossings = graph.runMetaheuristicTest(iterations).getKey();
+        long newCrossings = graph.runMetaheuristicTest(1000).getKey();
         System.out.println("Before: " + crossings);
         System.out.println("After: " + newCrossings);
         assertTrue(newCrossings < crossings);

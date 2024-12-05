@@ -29,7 +29,7 @@ public class CrossingsTest {
 
     @Test
     void test3() throws FileNotFoundException {
-        File file = new File("test.txt");
+        File file = new File("benchmarkset/test.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         assertEquals(1, graph.calculateTotalCrossings());
     }
@@ -50,14 +50,14 @@ public class CrossingsTest {
 
     @Test
     void test6() throws FileNotFoundException {
-        File file = new File("barycenter.txt");
+        File file = new File("benchmarkset/barycenter.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         assertEquals(5, graph.calculateTotalCrossings());
     }
 
     @Test
     void test7() throws FileNotFoundException {
-        File file = new File("splitting.txt");
+        File file = new File("benchmarkset/splitting.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         assertEquals(5, graph.calculateTotalCrossings());
     }
@@ -75,7 +75,7 @@ public class CrossingsTest {
 
     @Test
     void test9() throws FileNotFoundException {
-        File file = new File("barycenter.txt");
+        File file = new File("benchmarkset/barycenter.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         assertEquals(5, graph.calculateTotalCrossings());
         // when we swap 1 en 2, we will improve by 2 crossings
@@ -87,7 +87,7 @@ public class CrossingsTest {
 
     @Test
     void test10() throws FileNotFoundException {
-        File file = new File("splitting.txt");
+        File file = new File("benchmarkset/splitting.txt");
         BipartiteGraph graph = Input.textToGraph(file);
         assertEquals(5, graph.calculateTotalCrossings());
         // we swap 5 en 6 we imrove by 2
