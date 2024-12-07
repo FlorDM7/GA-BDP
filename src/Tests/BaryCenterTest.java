@@ -7,6 +7,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * A class containing some tests to make sure Barycenter is working properly.
+ * @author Flor De Meulemeester
+ */
 public class BaryCenterTest {
 
     @Test

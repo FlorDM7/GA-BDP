@@ -3,30 +3,70 @@ package Experiments;
 import Graph.BipartiteGraph;
 import Graph.Input;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 public class ThirdExperiment {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
+        File[] originalFiles = new File("benchmarkset/GraphBase_third_experiment").listFiles();
         File[] files = new File("benchmarkset/GraphBase_third_experiment").listFiles();
+        System.arraycopy(files, 100, files, 0,900);
+        System.arraycopy(originalFiles, 0, files, 900, 100);
+        FileWriter myWriter  = new FileWriter("results3.txt");
 
         System.out.println("-=-=-=-Barycenter-=-=-=-");
-        runExperiment(files, BipartiteGraph::runFirstHeuristic);
+        runExperiment(files, myWriter, BipartiteGraph::runFirstHeuristic);
+        myWriter.write("\n");
 
         System.out.println();
         System.out.println("-=-=-=-Splitting-=-=-=-");
-        runExperiment(files, BipartiteGraph::runSecondHeuristic);
+        runExperiment(files, myWriter, BipartiteGraph::runSecondHeuristic);
+        myWriter.write("\n");
 
         System.out.println();
-        int iterations = 10;
-        System.out.println("-=-=-=-Tabu Search met " + iterations + " iteraties-=-=-=-");
-        runExperiment(files,graph -> graph.runMetaheuristicTest(iterations));
+        System.out.println("-=-=-=-Tabu Search met " + 10 + " iteraties-=-=-=-");
+        runExperiment(files, myWriter, graph -> graph.runMetaheuristicTest(10));
+        myWriter.write("\n");
+
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 50 + " iteraties-=-=-=-");
+        runExperiment(files, myWriter,graph -> graph.runMetaheuristicTest(50));
+        myWriter.write("\n");
+
+        /*
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 100 + " iteraties-=-=-=-");
+        runExperiment(files, myWriter,graph -> graph.runMetaheuristicTest(100));
+        myWriter.write("\n");
+
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 250 + " iteraties-=-=-=-");
+        runExperiment(files,myWriter,graph -> graph.runMetaheuristicTest(250));
+        myWriter.write("\n");
+         */
+
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 1000 + " iteraties-=-=-=-");
+        runExperiment(files,myWriter,graph -> graph.runMetaheuristicTest(1000,15, 1, "Normal"));
+        myWriter.write("\n");
+
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 2000 + " iteraties-=-=-=-");
+        runExperiment(files,myWriter,graph -> graph.runMetaheuristicTest(2000,15, 1, "Normal"));
+        myWriter.write("\n");
+
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 5000 + " iteraties-=-=-=-");
+        runExperiment(files,myWriter,graph -> graph.runMetaheuristicTest(5000, 15, 1, "Normal"));
+
+        myWriter.close();
     }
 
-    public static void runExperiment(File[] files, Function<BipartiteGraph, Map.Entry<Long, List>> heuristic) throws FileNotFoundException {
+    public static void runExperiment(File[] files, FileWriter myWriter,Function<BipartiteGraph, Map.Entry<Long, List>> heuristic) throws IOException {
         int edges = 10;
         int j = 0;
         long average = 0;
@@ -43,7 +83,8 @@ public class ThirdExperiment {
                 double averageCrossings = (double) average / 100;
                 original = original / 100;
                 long improvement = (long) ((1 - averageCrossings/original) * 100);
-                System.out.println("Average crossings with " + edges + " edges and with 10 nodes:\t" + averageCrossings + "\t(" + original + ")" + "\t(" + improvement + "%)");
+                System.out.println("Average crossings with " + edges*2 + " edges and with "+ edges +" nodes:\t" + averageCrossings + "\t(" + original + ")" + "\t(" + improvement + "%)");
+                myWriter.write(averageCrossings + " & ");
                 average = 0;
                 original = 0;
                 j = 0;
@@ -51,10 +92,7 @@ public class ThirdExperiment {
             }
         }
         long stopTime = System.currentTimeMillis();
-        float elapsedTime = (float) (stopTime - startTime) / 1000;
-        System.out.println("Average: " + (float) total / 1000);
-        System.out.println("Elapsed time: " + elapsedTime + " s");
-        System.out.println("Elapsed time: " + elapsedTime / 60 + " min");
+        FirstExperiment.printTime(startTime, stopTime, total);
     }
 }
 

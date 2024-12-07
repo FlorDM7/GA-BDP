@@ -7,6 +7,10 @@ import Graph.Input;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * A class containing some tests to make sure we calculate the amount of crossings correctly.
+ * @author Flor De Meulemeester
+ */
 public class CrossingsTest {
 
     /**

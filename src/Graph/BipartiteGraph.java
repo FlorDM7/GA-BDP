@@ -136,8 +136,8 @@ public class BipartiteGraph implements BipartiteGraphInterface {
             return 0;
         }
         int k = 0;
-        List<Integer> neighboursOfI = getVerticesOf("A").get(i);
-        List<Integer> neighboursOfJ = getVerticesOf("A").get(j);
+        List<Integer> neighboursOfI = verticesA.get(i);
+        List<Integer> neighboursOfJ = verticesA.get(j);
         for (int neighbourOfI : neighboursOfI) {
             for (int neighbourOfJ : neighboursOfJ) {
                 if (getHeightOfVertexB(neighbourOfI) < getHeightOfVertexB(neighbourOfJ)) {

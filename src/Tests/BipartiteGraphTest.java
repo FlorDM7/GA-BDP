@@ -10,6 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * A class containing some tests for the heightToSequence and sequenceToHeight methods from BipartiteGraph.
+ * @author Flor De Meulemeester
+ */
 public class BipartiteGraphTest {
 
     @Test

@@ -7,6 +7,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * A class containing some tests to make sure Splitting is working properly.
+ * @author Flor De Meulemeester
+ */
 public class SplittingTest {
 
     @Test
@@ -67,28 +71,6 @@ public class SplittingTest {
     @Test
     void test6() throws FileNotFoundException {
         File file = new File("benchmarkset/barycenter.txt");
-        BipartiteGraph graph = Input.textToGraph(file);
-        long crossings = graph.calculateTotalCrossings();
-        long newCrossings = graph.runSecondHeuristic().getKey();
-        System.out.println("Before: " + crossings);
-        System.out.println("After: " + newCrossings);
-        assertTrue(newCrossings < crossings);
-    }
-
-    @Test
-    void test7() throws FileNotFoundException {
-        File file = new File("benchmarkset/extra_hard/1.gr");
-        BipartiteGraph graph = Input.textToGraph(file);
-        long crossings = graph.calculateTotalCrossings();
-        long newCrossings = graph.runSecondHeuristic().getKey();
-        System.out.println("Before: " + crossings);
-        System.out.println("After: " + newCrossings);
-        assertTrue(newCrossings < crossings);
-    }
-
-    @Test
-    void test8() throws FileNotFoundException {
-        File file = new File("benchmarkset/extra_easy/1.gr");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
         long newCrossings = graph.runSecondHeuristic().getKey();

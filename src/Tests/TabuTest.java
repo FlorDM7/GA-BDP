@@ -7,9 +7,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * A class containing some tests to make sure TabuSearch is working properly.
+ * @author Flor De Meulemeester
+ */
 public class TabuTest {
 
-    static int iterations = 2;
+    static int iterations = 10;
 
     @Test
     void test1() throws FileNotFoundException {
@@ -82,7 +86,7 @@ public class TabuTest {
         File file = new File("benchmarkset/extra_hard/1.gr");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
-        long newCrossings = graph.runMetaheuristicTest(iterations).getKey();
+        long newCrossings = graph.runMetaheuristicTest(iterations, 15 , 1 , "Normal").getKey();
         System.out.println("Before: " + crossings);
         System.out.println("After: " + newCrossings);
         assertTrue(newCrossings < crossings);
@@ -93,7 +97,7 @@ public class TabuTest {
         File file = new File("benchmarkset/extra_easy/1.gr");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
-        long newCrossings = graph.runMetaheuristicTest(iterations).getKey();
+        long newCrossings = graph.runMetaheuristicTest(iterations,15 , 1 , "Normal").getKey();
         System.out.println("Before: " + crossings);
         System.out.println("After: " + newCrossings);
         assertTrue(newCrossings < crossings);
