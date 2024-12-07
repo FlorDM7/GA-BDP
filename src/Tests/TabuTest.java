@@ -93,7 +93,7 @@ public class TabuTest {
         File file = new File("benchmarkset/extra_easy/1.gr");
         BipartiteGraph graph = Input.textToGraph(file);
         long crossings = graph.calculateTotalCrossings();
-        long newCrossings = graph.runMetaheuristicTest(1000).getKey();
+        long newCrossings = graph.runMetaheuristicTest(iterations).getKey();
         System.out.println("Before: " + crossings);
         System.out.println("After: " + newCrossings);
         assertTrue(newCrossings < crossings);

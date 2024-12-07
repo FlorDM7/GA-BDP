@@ -20,25 +20,33 @@ public class TabuSearch {
      * We generate a series of moves and choose the best possible move. A move consist of
      * swapping two vertices in a subset.
      *
-     * Other parameters could be:
-     * - Range of neighbourhood: We consider more or less moves per iteration
-     * - Different initial solution
-     *
      * @param   graph
      *          The given graph.
      * @param   maxIterations
      *          The maximum amount of iterations that the algorithm will do.
      * @param   tabuSize
      *          The size of the tabu list, in which we stored prohibited moves.
+     * @param   rangeOfNeighbourhood
+     *          The size of the neighbourhood, how many moves do we allow for each vertex.
+     * @param   start
+     *          Which start solution do we use, options: "Normal", "Barycenter", "Splitting"
+     *          This is handy when we combine heuristics
      * @return  The minimal amount of crossings found along with a List that contains the solution.
      */
-    public static Map.Entry<Long, List> heuristic(BipartiteGraph graph, int maxIterations, int tabuSize) {
+    public static Map.Entry<Long, List> heuristic(BipartiteGraph graph, int maxIterations, int tabuSize, int rangeOfNeighbourhood, String start) {
+        Map.Entry<Long, List> initial;
         // choose an initial solution
-        Map.Entry<Long, List> initial = initializeSolution(graph);
+        if (start.equals("Splitting")) {
+            initial = initializeWithSplitting(graph);
+        } else if (start.equals("Barycenter")) {
+            initial = initializeWIthBaryCenter(graph);
+        } else {
+            initial = initializeSolution(graph);
+        }
         // initialize the "best" solution
         long bestCrossings = initial.getKey();
-        HashMap<Integer, Integer> bestA = graph.getHeightA();
-        HashMap<Integer, Integer> bestB = graph.getHeightB();
+        HashMap<Integer, Integer> bestA = graph.sequenceToHeightA(initial.getValue().subList(0, graph.getFirstIndexOfB()));
+        HashMap<Integer, Integer> bestB = graph.sequenceToHeightA(initial.getValue().subList(graph.getFirstIndexOfB(), graph.getNumberOfVertices()));
         // keep track of the number of iterations
         int currentIterations = 0;
 
@@ -50,8 +58,18 @@ public class TabuSearch {
         long bestCandidateCrossingsWon = 0;
 
         // we calculate the neighbourhood OUTSIDE the loop, otherwise this is a big bottleneck
-        List<Pair<Integer, Integer>> neighbourhoodA = getAdjacentNeighbours(graph, "A");
-        List<Pair<Integer, Integer>> neighbourhoodB = getAdjacentNeighbours(graph, "B");
+        List<Pair<Integer, Integer>> neighbourhoodA;
+        if (rangeOfNeighbourhood > graph.getNumberOfVerticesInGroup("A")) {
+            neighbourhoodA = getAllNeighbours(graph,"A");
+        } else {
+            neighbourhoodA = getAdjacentNeighbours(graph,"A");
+        }
+        List<Pair<Integer, Integer>> neighbourhoodB;
+        if (rangeOfNeighbourhood > graph.getNumberOfVerticesInGroup("B")) {
+            neighbourhoodB = getAllNeighbours(graph,"B");
+        } else {
+            neighbourhoodB = getAdjacentNeighbours(graph, "B");
+        }
         List<Pair<Integer, Integer>> neighbourhood;
 
         while (!stoppingCondition(currentIterations, maxIterations)) {
@@ -110,19 +128,28 @@ public class TabuSearch {
      * Overloaded method for when there is no tabuSize given.
      */
     public static Map.Entry<Long, List> heuristic(BipartiteGraph graph, int maxIterations) {
-        return heuristic(graph, maxIterations, maxTabuSize);
+        return heuristic(graph, maxIterations, maxTabuSize, graph.getNumberOfVertices(), "Normal");
     }
 
+    /**
+     * Put the state of the graph into the solution format.
+     */
     public static Map.Entry<Long, List> initializeSolution(BipartiteGraph graph) {
         List<Integer> list = new ArrayList<>(graph.getSequenceA());
         list.addAll(graph.getSequenceB());
         return new AbstractMap.SimpleEntry<>(graph.calculateTotalCrossings(), list);
     }
 
+    /**
+     * Run the Barycenter heuristic and return the solution.
+     */
     public static Map.Entry<Long, List> initializeWIthBaryCenter(BipartiteGraph graph) {
         return BaryCenter.heuristic(graph);
     }
 
+    /**
+     * Run the Splitting heuristic on the graph and return the solution.
+     */
     public static Map.Entry<Long, List> initializeWithSplitting(BipartiteGraph graph) {
         return Splitting.heuristic(graph);
     }
@@ -150,6 +177,8 @@ public class TabuSearch {
     /**
      * We definiëren een andere neighbourhood move waarbij we enkel kijken
      * naar de knopen op een bepaalde afstand van elkaar.
+     *
+     * Indien we range gelijk aan 1 nemen krijgen we hetzelfde als getAdjacentNeighbours.
      */
     public static List<Pair<Integer, Integer>> getNeighboursInSpecificRange(BipartiteGraph graph, int range, String group) {
         List<Pair<Integer, Integer>> neighbours = new ArrayList<>();
@@ -159,11 +188,12 @@ public class TabuSearch {
         int firstIndex = graph.getFirstIndexOfGroup(group);
         int lastIndex = firstIndex + graph.getNumberOfVerticesInGroup(group);
         for (int i = firstIndex; i < lastIndex-1; i++) {
-            int limit = firstIndex + range;
-            for (int j = i+1; j < limit; j++) {
+            int limit = Math.min(firstIndex + range, lastIndex);
+            for (int j = i+1; j <= limit; j++) {
                 neighbours.add(new Pair<>(i, j));
             }
         }
+        System.out.println(neighbours);
         return neighbours;
     }
 
@@ -180,6 +210,9 @@ public class TabuSearch {
         return neighbours;
     }
 
+    /**
+     * Help method so that we can alternate between the groups. (this way we avoid some code duplication)
+     */
     public static String decideGroup(int iterations) {
         if (iterations % 2 == 0) {
             return "A";

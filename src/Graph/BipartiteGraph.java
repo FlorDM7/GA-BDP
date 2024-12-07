@@ -155,7 +155,6 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      * @pre i and j should be elements of B
      */
     private int calculateValueOfKInGroupB(int i, int j) {
-        // iedere keer opnieuw de index van een vertex zoeken
         if (!(getHeightOfVertexB(i) >= getHeightOfVertexB(j))) {
             return 0;
         }
@@ -181,7 +180,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      */
     public long differenceCrossingsAfterSwapA(int i, int j) {
         long before = 0;
-        List<Integer> sequence = heightToSequenceA(getHeightA()); // TODO maybe this is to much
+        List<Integer> sequence = heightToSequenceA(getHeightA());
         int heightOfI = getHeightOfVertexA(i);
         int heightOfJ = getHeightOfVertexA(j);
         // my implementation of K(i,j) only works when h(i) > h(j) so if not we swap i and j
@@ -217,7 +216,7 @@ public class BipartiteGraph implements BipartiteGraphInterface {
      */
     public long differenceCrossingsAfterSwapB(int i, int j) {
         long before = 0;
-        List<Integer> sequence = heightToSequenceB(getHeightB()); // TODO maybe this is too much
+        List<Integer> sequence = heightToSequenceB(getHeightB());
         int heightOfI = getHeightOfVertexB(i);
         int heightOfJ = getHeightOfVertexB(j);
         // my implementation of K(i,j) only works when h(i) > h(j) so if not we swap i and j
@@ -542,6 +541,10 @@ public class BipartiteGraph implements BipartiteGraphInterface {
     @Override
     public Map.Entry<Long, List> runMetaheuristicTest(int maxIterations) {
         return TabuSearch.heuristic(this, maxIterations);
+    }
+
+    public Map.Entry<Long, List> runMetaheuristicTest(int maxIterations, int tabuSize, int range, String start) {
+        return TabuSearch.heuristic(this, maxIterations, tabuSize, range, start);
     }
 
     /**

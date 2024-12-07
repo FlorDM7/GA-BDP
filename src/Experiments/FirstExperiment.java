@@ -22,10 +22,32 @@ public class FirstExperiment {
         runExperiment(files, BipartiteGraph::runSecondHeuristic);
 
         System.out.println();
-        int iterations = 2000;
-        int tabusize = 15;
-        System.out.println("-=-=-=-Tabu Search met " + iterations + " iteraties-=-=-=-");
-        runExperiment(files,graph -> graph.runMetaheuristicTest(iterations));
+        System.out.println("-=-=-=-Tabu Search met " + 10 + " iteraties-=-=-=-");
+        runExperiment(files,graph -> graph.runMetaheuristicTest(10));
+
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 50 + " iteraties-=-=-=-");
+        runExperiment(files,graph -> graph.runMetaheuristicTest(50));
+
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 100 + " iteraties-=-=-=-");
+        runExperiment(files,graph -> graph.runMetaheuristicTest(100));
+
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 250 + " iteraties-=-=-=-");
+        runExperiment(files,graph -> graph.runMetaheuristicTest(250));
+
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 1000 + " iteraties-=-=-=-");
+        runExperiment(files,graph -> graph.runMetaheuristicTest(1000,15, 1, "Normal"));
+
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 2000 + " iteraties-=-=-=-");
+        runExperiment(files,graph -> graph.runMetaheuristicTest(2000,15, 1, "Normal"));
+
+        System.out.println();
+        System.out.println("-=-=-=-Tabu Search met " + 5000 + " iteraties-=-=-=-");
+        runExperiment(files,graph -> graph.runMetaheuristicTest(5000, 15, 1, "Normal"));
     }
 
     public static void runExperiment(File[] files, Function<BipartiteGraph, Map.Entry<Long, List>> heuristic) throws FileNotFoundException {
