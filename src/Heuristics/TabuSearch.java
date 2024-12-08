@@ -28,6 +28,8 @@ public class TabuSearch {
      *          The size of the tabu list, in which we stored prohibited moves.
      * @param   rangeOfNeighbourhood
      *          The size of the neighbourhood, how many moves do we allow for each vertex.
+     *          I didn't have time to fully test getNeighboursInSpecificRange method so when this
+     *          value is high we use getAllNeighbours and if it is low we use getAdjacentNeighbours.
      * @param   start
      *          Which start solution do we use, options: "Normal", "Barycenter", "Splitting"
      *          This is handy when we combine heuristics
