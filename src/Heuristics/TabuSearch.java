@@ -38,15 +38,23 @@ public class TabuSearch {
         // choose an initial solution
         if (start.equals("Splitting")) {
             initial = initializeWithSplitting(graph);
+            graph.setSequenceA(initial.getValue().subList(0, graph.getFirstIndexOfB()-1));
+            graph.setSequenceB(initial.getValue().subList(graph.getFirstIndexOfB()-1, graph.getNumberOfVertices()));
+            graph.sequenceToHeightA(initial.getValue().subList(0, graph.getFirstIndexOfB()-1));
+            graph.sequenceToHeightB(initial.getValue().subList(graph.getFirstIndexOfB()-1, graph.getNumberOfVertices()));
         } else if (start.equals("Barycenter")) {
-            initial = initializeWIthBaryCenter(graph);
+            initial = initializeWithBaryCenter(graph);
+            graph.setSequenceA(initial.getValue().subList(0, graph.getFirstIndexOfB()-1));
+            graph.setSequenceB(initial.getValue().subList(graph.getFirstIndexOfB()-1, graph.getNumberOfVertices()));
+            graph.sequenceToHeightA(initial.getValue().subList(0, graph.getFirstIndexOfB()-1));
+            graph.sequenceToHeightB(initial.getValue().subList(graph.getFirstIndexOfB()-1, graph.getNumberOfVertices()));
         } else {
             initial = initializeSolution(graph);
         }
         // initialize the "best" solution
         long bestCrossings = initial.getKey();
-        HashMap<Integer, Integer> bestA = graph.sequenceToHeightA(initial.getValue().subList(0, graph.getFirstIndexOfB()));
-        HashMap<Integer, Integer> bestB = graph.sequenceToHeightA(initial.getValue().subList(graph.getFirstIndexOfB(), graph.getNumberOfVertices()));
+        HashMap<Integer, Integer> bestA = graph.getHeightA();
+        HashMap<Integer, Integer> bestB = graph.getHeightB();
         // keep track of the number of iterations
         int currentIterations = 0;
 
@@ -68,7 +76,7 @@ public class TabuSearch {
         if (rangeOfNeighbourhood > graph.getNumberOfVerticesInGroup("B")) {
             neighbourhoodB = getAllNeighbours(graph,"B");
         } else {
-            neighbourhoodB = getAdjacentNeighbours(graph, "B");
+            neighbourhoodB = getAdjacentNeighbours(graph,"B");
         }
         List<Pair<Integer, Integer>> neighbourhood;
 
@@ -143,7 +151,7 @@ public class TabuSearch {
     /**
      * Run the Barycenter heuristic and return the solution.
      */
-    public static Map.Entry<Long, List> initializeWIthBaryCenter(BipartiteGraph graph) {
+    public static Map.Entry<Long, List> initializeWithBaryCenter(BipartiteGraph graph) {
         return BaryCenter.heuristic(graph);
     }
 
@@ -175,10 +183,10 @@ public class TabuSearch {
     }
 
     /**
-     * We definiëren een andere neighbourhood move waarbij we enkel kijken
-     * naar de knopen op een bepaalde afstand van elkaar.
+     * We define a different neighbourhood move for which we only look at vertices
+     * within a certain range of each other.
      *
-     * Indien we range gelijk aan 1 nemen krijgen we hetzelfde als getAdjacentNeighbours.
+     * I didn't take enough time to experiment with this method.
      */
     public static List<Pair<Integer, Integer>> getNeighboursInSpecificRange(BipartiteGraph graph, int range, String group) {
         List<Pair<Integer, Integer>> neighbours = new ArrayList<>();

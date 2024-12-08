@@ -13,7 +13,7 @@ public class SecondExperiment {
 
     public static void main(String[] args) throws IOException {
         File[] files = new File("benchmarkset/GraphBase_second_experiment").listFiles();
-        FileWriter myWriter  = new FileWriter("results2.txt");
+        FileWriter myWriter  = new FileWriter("results2percent.txt");
 
         System.out.println("-=-=-=-Barycenter-=-=-=-");
         runExperiment(files, myWriter, BipartiteGraph::runFirstHeuristic);
@@ -79,7 +79,7 @@ public class SecondExperiment {
                 original = original / 100;
                 long improvement = (long) ((1 - averageCrossings/original) * 100);
                 System.out.println("Average crossings with " + edges + " edges and with " + edges + " nodes:\t" + averageCrossings + "\t(" + original + ")" + "\t(" + improvement + "%)");
-                myWriter.write(averageCrossings + " & ");
+                myWriter.write(improvement + " & ");
                 average = 0;
                 original = 0;
                 j = 0;

@@ -16,7 +16,7 @@ public class ThirdExperiment {
         File[] files = new File("benchmarkset/GraphBase_third_experiment").listFiles();
         System.arraycopy(files, 100, files, 0,900);
         System.arraycopy(originalFiles, 0, files, 900, 100);
-        FileWriter myWriter  = new FileWriter("results3.txt");
+        FileWriter myWriter  = new FileWriter("results3percent.txt");
 
         System.out.println("-=-=-=-Barycenter-=-=-=-");
         runExperiment(files, myWriter, BipartiteGraph::runFirstHeuristic);
@@ -84,7 +84,7 @@ public class ThirdExperiment {
                 original = original / 100;
                 long improvement = (long) ((1 - averageCrossings/original) * 100);
                 System.out.println("Average crossings with " + edges*2 + " edges and with "+ edges +" nodes:\t" + averageCrossings + "\t(" + original + ")" + "\t(" + improvement + "%)");
-                myWriter.write(averageCrossings + " & ");
+                myWriter.write(improvement + " & ");
                 average = 0;
                 original = 0;
                 j = 0;

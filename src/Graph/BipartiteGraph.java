@@ -328,6 +328,16 @@ public class BipartiteGraph implements BipartiteGraphInterface {
         return sequenceB;
     }
 
+    @Basic
+    public void setSequenceA(List<Integer> sequenceA) {
+        this.sequenceA = sequenceA;
+    }
+
+    @Basic
+    public void setSequenceB(List<Integer> sequenceB) {
+        this.sequenceB = sequenceB;
+    }
+
     /**
      * We sort the indicies of group A based on the possibly new heights in the height variable.
      */

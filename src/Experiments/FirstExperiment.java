@@ -14,7 +14,7 @@ public class FirstExperiment {
 
     public static void main(String[] args) throws IOException {
         File[] files = new File("benchmarkset/GraphBase_first_experiment").listFiles();
-        FileWriter myWriter  = new FileWriter("results1.txt");
+        FileWriter myWriter  = new FileWriter("results1percent.txt");
 
         System.out.println("-=-=-=-Barycenter-=-=-=-");
         runExperiment(files, myWriter, BipartiteGraph::runFirstHeuristic);
@@ -80,7 +80,7 @@ public class FirstExperiment {
                 original = original / 100;
                 long improvement = (long) ((1 - averageCrossings/original) * 100);
                 System.out.println("Average crossings with " + edges + " edges and with 10 nodes:\t" + averageCrossings + "\t(" + original + ")" + "\t(" + improvement + "%)");
-                myWriter.write(averageCrossings + " & ");
+                myWriter.write(improvement + " & "); // write to file and this is perfect format for latex :)
                 average = 0;
                 original = 0;
                 j = 0;
